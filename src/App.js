@@ -12,7 +12,7 @@ function Dashboard() {
   const [showBranchesInfo, setShowBranchesInfo] = useState(false);
   const [showDatesInfo, setShowDatesInfo] = useState(false);
   return (
-    <React.Fragment>
+    <>
       <ControlPanel
         showBranchesInfo={showBranchesInfo}
         setShowBranchesInfo={setShowBranchesInfo}
@@ -33,14 +33,14 @@ function Dashboard() {
           setDetailedTaskInfo={setDetailedTaskInfo}
         />
       )}
-    </React.Fragment>
+    </>
   );
 }
 
 function App() {
   return (
     <div className='App'>
-      <BrowserRouter>
+      {/* <BrowserRouter>
         <Route exact path='/'>
           Not logged in
         </Route>
@@ -49,7 +49,8 @@ function App() {
           path={ApplicationPaths.ApiAuthorizationPrefix}
           component={ApiAuthorizationRoutes}
         />
-      </BrowserRouter>
+      </BrowserRouter> */}
+      <Dashboard />
     </div>
   );
 }

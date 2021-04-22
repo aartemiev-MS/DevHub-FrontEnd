@@ -42,3 +42,34 @@ code {
 .MuiTableCell-body {
   box-shadow: 0.5px 0px 0px 0px grey, 0.5px 0px 0px 0px grey;
 }
+
+.branch-info-cell {
+  white-space: nowrap;
+}
+
+.branch-info-header-cell {
+}
+
+.default-branch-name {
+  color: lightgrey !important;
+}
+
+.cell-task-info {
+  width: 80px;
+  padding: 0 !important;
+}
+.cell-status {
+  width: 250px;
+  padding: 6px 0 !important;
+  min-width: 250px;
+  color: white !important;
+}
+
+.MuiTableRow-head > .cell-status > div > div {
+  color: white !important;
+  max-width: 250px;
+}
+
+li.Mui-selected {
+  background-color: grey !important;
+}

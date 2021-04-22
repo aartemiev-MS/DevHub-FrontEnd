@@ -35,6 +35,24 @@ const microServicesBranchData = [
         AOOHub: 'demo',
         AOO: 'demo'
     },
+    {
+        Id: '2',
+        Megalfa: 'demo',
+        MegalfaHub: 'demo',
+        Acomba: 'demo',
+        MAService: 'demo',
+        Identity: 'y-dev-1',
+        Registry: 'demo',
+        Manufacturing: 'demo',
+        Shipping: 'demo',
+        CrossRef: 'demo',
+        Catalog: 'demo',
+        Customer: 'demo',
+        Ordering: 'demo',
+        Scheduling: 'demo',
+        AOOHub: 'demo',
+        AOO: 'demo'
+    },
 
 ]
 
@@ -80,6 +98,22 @@ let demoData = [
         tags: ['Urgent', 'For Dom', 'Report to Mel'],
         deploymentData: null,
         microServicesBranchData: microServicesBranchData[1]
+    },
+    {
+        id: '2',
+        taskName: 'AIS log out bug',
+        devs: ['Yehor', 'Yulia'],
+        status: statuses[6],
+        taskInfo: 'AIS suddenly logs user out',
+        dates: {
+            created: "2021-03-10T10:30",
+            started: "2021-03-10T12:10",
+            finished: "2021-03-12T12:10",
+            tested: "2021-03-13T12:10"
+        },
+        tags: ['Urgent', 'Report to Mel'],
+        deploymentData: null,
+        microServicesBranchData: microServicesBranchData[2]
     }
 ]
 
