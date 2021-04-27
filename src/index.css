@@ -59,10 +59,55 @@ code {
   padding: 0 !important;
 }
 .cell-status {
-  width: 250px;
   padding: 6px 0 !important;
-  min-width: 250px;
-  color: white !important;
+  min-width: 200px;
+  max-width: 200px;
+}
+
+.cell-task-name,
+.cell-task-group,
+.cell-task-sub-group {
+  min-width: 150px;
+  max-width: 150px;
+  position: sticky;
+  padding: 0 !important;
+  background-color: white;
+  z-index: 1;
+}
+.cell-task-group {
+  left: 0;
+}
+.cell-task-sub-group {
+  left: 150px;
+}
+.cell-task-name {
+  left: 300px;
+}
+
+.cell-main-dev-name {
+  min-width: 90px;
+  max-width: 90px;
+  position: sticky;
+  padding: 0 10px !important;
+  left: 450px;
+  background-color: white;
+  z-index: 1;
+}
+
+.cell-coll-dev-name {
+  min-width: 100px;
+  max-width: 100px;
+  position: sticky;
+  padding: 10px 10px !important;
+  left: 560px;
+  background-color: white;
+  z-index: 3;
+}
+
+.cell-coll-dev-name > div > div > div {
+  white-space: normal;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .MuiTableRow-head > .cell-status > div > div {
@@ -72,4 +117,24 @@ code {
 
 li.Mui-selected {
   background-color: grey !important;
+}
+
+.sticky-cell-wrap {
+  position: sticky;
+  left: 0;
+  padding: 0 !important;
+  box-shadow: none;
+  width: 250px;
+}
+
+.black-row > th,
+.black-row > th > th {
+  background-color: black;
+  color: white;
+}
+
+.filter-row > th,
+.filter-row > th > th {
+  /* color: #3f51b5; */
+  background-color: white;
 }

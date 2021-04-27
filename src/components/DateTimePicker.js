@@ -17,8 +17,6 @@ export default function DateTimePicker(props) {
         setSelectedDate(Date.now())
     }
 
-    if (props.dateName === 'Started') console.log('selectedDate:', selectedDate)
-
     return (selectedDate ?
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <DatePicker
@@ -29,10 +27,13 @@ export default function DateTimePicker(props) {
                 autoOk
                 inputVariant='outlined'
                 className='date-picker'
+                readOnly={props.readOnly}
             />
         </MuiPickersUtilsProvider> :
+        !props.readOnly &&
         <Tooltip title={"Set " + props.dateName + " Date"} arrow interactive >
             <Button onClick={onClickSetDate} variant="contained" color='primary'>Set</Button>
         </Tooltip >)
+
 
 }

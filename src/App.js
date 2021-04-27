@@ -9,8 +9,9 @@ import AuthorizeRoute from "./components/api-authorization/AuthorizeRoute";
 
 function Dashboard() {
   const [detailedTaskInfo, setDetailedTaskInfo] = useState(null);
-  const [showBranchesInfo, setShowBranchesInfo] = useState(false);
-  const [showDatesInfo, setShowDatesInfo] = useState(false);
+  const [readOnlyMode, setReadOnlyMode] = useState(true);
+  const [showBranchesInfo, setShowBranchesInfo] = useState(true);
+  const [showDatesInfo, setShowDatesInfo] = useState(true);
   return (
     <>
       <ControlPanel
@@ -23,8 +24,12 @@ function Dashboard() {
       <TasksTable
         showDateInfo={showDatesInfo}
         showBranchesInfo={showBranchesInfo}
+        setShowBranchesInfo={setShowBranchesInfo}
         showDatesInfo={showDatesInfo}
+        setShowDatesInfo={setShowDatesInfo}
         setDetailedTaskInfo={setDetailedTaskInfo}
+        readOnlyMode={readOnlyMode}
+        setReadOnlyMode={setReadOnlyMode}
       />
 
       {detailedTaskInfo && (
