@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import TasksTable from "../src/components/tasksTable";
 import DetailedTaskInfoPage from "../src/components/DetailedTaskInfoPage";
 import ControlPanel from "../src/components/ControlPanel";
+import TestDraggableTable from "./components/draggableTable/TestDraggableTable";
 import { BrowserRouter, Route } from "react-router-dom";
 import { ApplicationPaths } from "./components/api-authorization/ApiAuthorizationConstants";
 import ApiAuthorizationRoutes from "./components/api-authorization/ApiAuthorizationRoutes";
 import AuthorizeRoute from "./components/api-authorization/AuthorizeRoute";
 
 function Dashboard() {
-  const [detailedTaskInfo, setDetailedTaskInfo] = useState(null);
   const [readOnlyMode, setReadOnlyMode] = useState(true);
-  const [showBranchesInfo, setShowBranchesInfo] = useState(true);
-  const [showDatesInfo, setShowDatesInfo] = useState(true);
+  const [showBranchesInfo, setShowBranchesInfo] = useState(false);
+  const [showDatesInfo, setShowDatesInfo] = useState(false);
   return (
     <>
       <ControlPanel
@@ -27,17 +27,9 @@ function Dashboard() {
         setShowBranchesInfo={setShowBranchesInfo}
         showDatesInfo={showDatesInfo}
         setShowDatesInfo={setShowDatesInfo}
-        setDetailedTaskInfo={setDetailedTaskInfo}
         readOnlyMode={readOnlyMode}
         setReadOnlyMode={setReadOnlyMode}
       />
-
-      {detailedTaskInfo && (
-        <DetailedTaskInfoPage
-          detailedTaskInfo={detailedTaskInfo}
-          setDetailedTaskInfo={setDetailedTaskInfo}
-        />
-      )}
     </>
   );
 }

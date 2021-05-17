@@ -47,13 +47,25 @@ code {
   white-space: nowrap;
 }
 
-.branch-info-header-cell {
+.logout-button.MuiIconButton-root {
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 .default-branch-name {
   color: lightgrey !important;
 }
 
+.cell-dragger {
+  min-width: 60px;
+  max-width: 60px;
+  position: sticky;
+  background-color: white;
+  z-index: 1;
+  padding: 0 !important;
+  left: 0;
+}
 .cell-task-info {
   width: 80px;
   padding: 0 !important;
@@ -75,13 +87,13 @@ code {
   z-index: 1;
 }
 .cell-task-group {
-  left: 0;
+  left: 60px;
 }
 .cell-task-sub-group {
-  left: 150px;
+  left: 210px;
 }
 .cell-task-name {
-  left: 300px;
+  left: 360px;
 }
 
 .cell-main-dev-name {
@@ -89,7 +101,7 @@ code {
   max-width: 90px;
   position: sticky;
   padding: 0 10px !important;
-  left: 450px;
+  left: 510px;
   background-color: white;
   z-index: 1;
 }
@@ -99,7 +111,7 @@ code {
   max-width: 100px;
   position: sticky;
   padding: 10px 10px !important;
-  left: 560px;
+  left: 620px;
   background-color: white;
   z-index: 3;
 }
@@ -110,21 +122,22 @@ code {
   padding-bottom: 10px;
 }
 
+.cell-date-picker > div {
+  margin: 0;
+}
+
 .MuiTableRow-head > .cell-status > div > div {
-  color: white !important;
-  max-width: 250px;
+  /* color: white !important; */
+  max-width: 200px;
+}
+
+.MuiTableRow-head > .cell-main-dev-name > div > div {
+  /* color: white !important; */
+  max-width: 100px;
 }
 
 li.Mui-selected {
   background-color: grey !important;
-}
-
-.sticky-cell-wrap {
-  position: sticky;
-  left: 0;
-  padding: 0 !important;
-  box-shadow: none;
-  width: 250px;
 }
 
 .black-row > th,
@@ -137,4 +150,21 @@ li.Mui-selected {
 .filter-row > th > th {
   /* color: #3f51b5; */
   background-color: white;
+}
+
+.dev-popover {
+  padding: 10px 20px;
+}
+
+.group-edge {
+  border-right: 3px solid black;
+}
+
+.table-container {
+  margin: 50px;
+  width: unset !important;
+  box-shadow: none !important;
+}
+.table-container > tbody {
+  box-shadow: 0px 4px 4px 0px rgb(0 0 0 / 34%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
 }

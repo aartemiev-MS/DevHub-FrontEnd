@@ -1,12 +1,14 @@
 import React from 'react'
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import IconButton from '@material-ui/core/IconButton';
 
 export default function ControlPanel(props) {
 
     return (
         <div className='control-panel-wrap'>
-            Control panel
+            <IconButton className='logout-button' onClick={() => { }}>
+                <ExitToAppIcon fontSize="large" color='primary' />
+            </IconButton>
         </div>
     )
 }
