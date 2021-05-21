@@ -3,11 +3,14 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import PauseCircleFilledIcon from '@material-ui/icons/PauseCircleFilled';
+import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
 
 const StyledMenu = withStyles({
     paper: {
@@ -47,17 +50,22 @@ export default function TableContextMenu(props) {
     };
 
     const onClickAddAbove = e => {
-        props.addRow(props.contextMenuAnchor[2])
+        props.addRow(props.contextMenuAnchor.taskIndex)
         handleClose()
     }
 
     const onClickAddBelow = e => {
-        props.addRow(props.contextMenuAnchor[2] + 1)
+        props.addRow(props.contextMenuAnchor.taskIndex + 1)
         handleClose()
     }
 
     const onClickRemove = e => {
-        props.removeRow(props.contextMenuAnchor[2])
+        props.removeRow(props.contextMenuAnchor.taskIndex)
+        handleClose()
+    }
+
+    const onClickOnHoldAction = e => {
+        props.onHoldAction(props.contextMenuAnchor.taskIndex, props.contextMenuAnchor.isOnHold)
         handleClose()
     }
 
@@ -65,7 +73,7 @@ export default function TableContextMenu(props) {
         <StyledMenu
             id="customized-menu"
             anchorReference="anchorPosition"
-            anchorPosition={props.contextMenuAnchor && { left: props.contextMenuAnchor[0], top: props.contextMenuAnchor[1] }}
+            anchorPosition={{ left: props.contextMenuAnchor.xPos, top: props.contextMenuAnchor.yPos }}
             keepMounted
             open={Boolean(props.contextMenuAnchor)}
             onClose={handleClose}
@@ -73,22 +81,37 @@ export default function TableContextMenu(props) {
         >
             <StyledMenuItem onClick={onClickAddAbove}>
                 <ListItemIcon>
-                    <KeyboardArrowUpIcon fontSize="small" />
+                    <KeyboardArrowUpIcon fontSize="medium" />
                 </ListItemIcon>
                 <ListItemText primary="Add a row above" />
             </StyledMenuItem>
             <StyledMenuItem onClick={onClickAddBelow}>
                 <ListItemIcon>
-                    <KeyboardArrowDownIcon fontSize="small" />
+                    <KeyboardArrowDownIcon fontSize="medium" />
                 </ListItemIcon>
                 <ListItemText primary="Add a row below" />
             </StyledMenuItem>
             <StyledMenuItem onClick={onClickRemove}>
                 <ListItemIcon>
-                    <DeleteForeverIcon fontSize="small" />
+                    <DeleteForeverIcon fontSize="medium" />
                 </ListItemIcon>
                 <ListItemText primary="Remove row" />
             </StyledMenuItem>
+
+            { props.contextMenuAnchor.isOnHold ?
+                <StyledMenuItem onClick={onClickOnHoldAction}>
+                    <ListItemIcon>
+                        <PlayCircleFilledIcon fontSize="medium" />
+                    </ListItemIcon>
+                    <ListItemText primary="Remove from hold" />
+                </StyledMenuItem> :
+                <StyledMenuItem onClick={onClickOnHoldAction}>
+                    <ListItemIcon>
+                        <PauseCircleFilledIcon fontSize="medium" />
+                    </ListItemIcon>
+                    <ListItemText primary="Put on hold" />
+                </StyledMenuItem>
+            }
         </StyledMenu>
     );
 }

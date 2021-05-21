@@ -35,12 +35,9 @@ code {
   height: 70px;
 }
 
-.date-picker > div > input {
-  width: 100px;
-}
-
 .MuiTableCell-body {
-  box-shadow: 0.5px 0px 0px 0px grey, 0.5px 0px 0px 0px grey;
+  /* box-shadow: 0.5px 0px 0px 0px grey, 0.5px 0px 0px 0px grey; */
+  box-shadow: none !important;
 }
 
 .branch-info-cell {
@@ -58,22 +55,62 @@ code {
 }
 
 .cell-dragger {
-  min-width: 60px;
-  max-width: 60px;
+  min-width: 35px;
+  max-width: 35px;
   position: sticky;
   background-color: white;
-  z-index: 1;
+  z-index: 5;
   padding: 0 !important;
   left: 0;
+  white-space: nowrap;
+  border-left: 1px solid black !important;
+}
+.cell-dragger > svg,
+.cell-dragger > div > button {
+  margin-left: 9px !important;
+}
+.cell-main-dev-name {
+  min-width: 110px;
+  max-width: 110px;
+  position: sticky;
+  padding: 0 !important;
+  left: 35px;
+  background-color: white;
+  z-index: 1;
+}
+.cell-priority {
+  position: sticky;
+  min-width: 30px;
+  max-width: 30px;
+  padding: 5px 0 !important;
+  left: 145px;
 }
 .cell-task-info {
-  width: 80px;
+  min-width: 35px;
+  max-width: 35px;
+  padding: 5px !important;
+}
+.cell-task-info > .MuiIconButton-root {
   padding: 0 !important;
 }
 .cell-status {
   padding: 6px 0 !important;
   min-width: 200px;
   max-width: 200px;
+}
+.cell-status > div > div > div {
+  padding: 5px 32px 5px 14px;
+}
+.cell-action {
+  min-width: 120px;
+  max-width: 120px;
+}
+.cell-action > button {
+  padding: 3px 10px !important;
+  line-height: unset !important;
+  text-transform: capitalize !important;
+  font-size: unset !important;
+  margin: 2.5px;
 }
 
 .cell-task-name,
@@ -87,43 +124,39 @@ code {
   z-index: 1;
 }
 .cell-task-group {
-  left: 60px;
+  left: 175px;
 }
 .cell-task-sub-group {
-  left: 210px;
+  left: 325px;
 }
 .cell-task-name {
-  left: 360px;
+  left: 475px;
+}
+.cell-task-name > div > div > input {
+  text-align: center;
 }
 
-.cell-main-dev-name {
-  min-width: 90px;
-  max-width: 90px;
+.cell-collaborators {
+  min-width: 150px;
+  max-width: 150px;
   position: sticky;
-  padding: 0 10px !important;
-  left: 510px;
-  background-color: white;
-  z-index: 1;
-}
-
-.cell-coll-dev-name {
-  min-width: 100px;
-  max-width: 100px;
-  position: sticky;
-  padding: 10px 10px !important;
-  left: 620px;
+  left: 625px;
   background-color: white;
   z-index: 3;
 }
 
-.cell-coll-dev-name > div > div > div {
-  white-space: normal;
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-
 .cell-date-picker > div {
   margin: 0;
+}
+
+.cell-date-picker > button > span {
+  line-height: normal;
+}
+
+.cell-date-picker > .date-picker > div > .MuiOutlinedInput-input {
+  padding: 5px 10px 5px 10px !important;
+  text-align: center;
+  width: 90px;
 }
 
 .MuiTableRow-head > .cell-status > div > div {
@@ -153,7 +186,14 @@ li.Mui-selected {
 }
 
 .dev-popover {
-  padding: 10px 20px;
+  padding: 0px 10px 0 10px;
+}
+
+.dev-popover-line {
+  display: flex;
+  align-items: center;
+  width: 150px;
+  justify-content: space-between;
 }
 
 .group-edge {
@@ -166,5 +206,71 @@ li.Mui-selected {
   box-shadow: none !important;
 }
 .table-container > tbody {
-  box-shadow: 0px 4px 4px 0px rgb(0 0 0 / 34%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+  box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%),
+    0px 4px 4px 0px rgb(0 0 0 / 34%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+}
+
+.big-view-buttons-wrap {
+  display: inline-block;
+}
+.big-view-buttons-wrap > button {
+  width: 50%;
+}
+.big-view-buttons-wrap > button > span > svg {
+  margin-right: 5px;
+}
+
+.small-view-button,
+.filtering-header-icon {
+  background-color: white !important;
+  margin: 0 5px !important;
+  width: 20px;
+  height: 20px;
+}
+
+.task-row {
+  background-color: white;
+  z-index: 10;
+  border-bottom: 1px solid black !important;
+  border-top: 1px solid black !important;
+}
+
+.MuiTableCell-root {
+  border-bottom: unset !important;
+}
+.MuiInputBase-root {
+  font-size: unset !important;
+}
+
+.active-drag-mode > tbody > .border-row > td > div {
+  height: 10px;
+}
+.active-drag-mode-row > td {
+  background-color: lightgrey !important;
+}
+
+.border-row > td {
+  padding: 4px 0 !important;
+}
+
+.highlighted-cell {
+  background-color: lavender;
+}
+
+.modal-task-header {
+  display: flex;
+  width: 500px;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.no-tasks-row {
+  white-space: nowrap;
+  width: 1220px;
+  padding: 20px 0;
+  background-color: white;
+}
+
+.filter-button-group {
+  margin: 0 10px 10px 10px;
 }

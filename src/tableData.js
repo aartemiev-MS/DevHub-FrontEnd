@@ -76,23 +76,22 @@ const microServicesBranchDataEmpty = {
 }
 
 const statuses = [
-    { name: 'Not yet started', id: 0 },
-    { name: 'In development', id: 1 },
-    { name: 'On hold', id: 2 },
-    { name: 'Completed by Dev', id: 3 },
-    { name: 'Tested by QA', id: 4 },
-    { name: 'Bug Detected', id: 5 },
-    { name: 'Ready to deploy', id: 6 },
-    { name: 'Deployed', id: 7 },
+    { name: 'Not yet started', id: 0, actions: ['Start (code)'] },
+    { name: 'In development', id: 1, actions: ['Done (code)'] },
+    { name: 'Completed by Dev', id: 3, actions: ['Start (test)'] },
+    { name: 'QA Testing', id: 4, actions: ['Pass', 'Fail'] },
+    { name: 'Bug Fixing', id: 5, actions: ['Done (bugfix)'] },
+    { name: 'Ready to deploy', id: 6, actions: ['Deploy'] },
+    { name: 'Deployed', id: 7, actions: [] },
 ]
 
 export function getDevs() {
     return [
-        { id: 0, name: 'Sasha' },
-        { id: 1, name: 'Denis' },
-        { id: 2, name: 'Max' },
-        { id: 3, name: 'Kirill' },
-        { id: 4, name: 'Yulia' },
+        { id: 0, priority: 0, name: 'Sasha Artemiev', color: 'rgb(3, 86, 229)', isWhiteText: true },
+        { id: 1, priority: 1, name: 'Denis Lopatin', color: 'rgb(255, 251, 0)', isWhiteText: false },
+        { id: 2, priority: 2, name: 'Maxim Zelenko', color: 'rgb(3, 155, 229)', isWhiteText: true },
+        { id: 3, priority: 3, name: 'Kirill Stakhevych', color: 'rgb(121, 85, 72)', isWhiteText: true },
+        { id: 4, priority: 4, name: 'Yulia Chukhrii', color: 'rgb(97, 97, 97)', isWhiteText: true },
     ]
 }
 
@@ -103,7 +102,8 @@ let demoData = [
         taskGroup: 'Urgent MMR Bugs',
         taskSubGroup: 'Sub group 1',
         mainDev: getDevs()[4],
-        collaborators: [getDevs()[0], getDevs()[1]],
+        devPriority: 1,
+        collaborators: [],
         status: statuses[0],
         taskInfo: 'We need to find out why sometimes shipping fails',
         dates: {
@@ -123,6 +123,7 @@ let demoData = [
         taskGroup: 'Megalfa Bugs',
         taskSubGroup: 'Sub group 1',
         mainDev: getDevs()[2],
+        devPriority: 1,
         collaborators: [getDevs()[0], getDevs()[3], getDevs()[4]],
         status: statuses[1],
         taskInfo: 'Endless exceptions in the EditCustomer form',
@@ -143,8 +144,9 @@ let demoData = [
         taskGroup: 'Urgent MMR Bugs',
         taskSubGroup: 'Sub group 2',
         mainDev: getDevs()[0],
+        devPriority: 1,
         collaborators: [getDevs()[3], getDevs()[4]],
-        status: statuses[7],
+        status: statuses[5],
         taskInfo: 'AIS suddenly logs user out',
         dates: {
             created: "2021-03-10T10:30",
@@ -156,11 +158,53 @@ let demoData = [
         tags: ['Urgent', 'Report to Mel'],
         deploymentData: null,
         microServicesBranchData: microServicesBranchData[2]
+    },
+    {
+        id: '3',
+        taskName: 'Quick Upload tool',
+        taskGroup: 'Urgent MMR Bugs',
+        taskSubGroup: 'Sub group 2',
+        mainDev: getDevs()[1],
+        devPriority: 1,
+        collaborators: [getDevs()[0], getDevs()[3]],
+        status: statuses[2],
+        taskInfo: 'Harmonize the order of columns between code, instructions and screenshot. (use order in code)',
+        dates: {
+            created: null,
+            started: null,
+            finished: null,
+            tested: null,
+            deployed: null
+        },
+        tags: ['Urgent', 'Report to Mel'],
+        deploymentData: null,
+        microServicesBranchData: microServicesBranchData[2]
+    },
+    {
+        id: '4',
+        taskName: 'Quote edit',
+        taskGroup: 'Urgent MMR Bugs',
+        taskSubGroup: 'Sub group 2',
+        mainDev: getDevs()[1],
+        devPriority: 2,
+        collaborators: [getDevs()[0], getDevs()[3], getDevs()[4]],
+        status: statuses[3],
+        taskInfo: 'Follow-up quote allows Print-all with optionsquote-pdf. Add popup menu to Follow-up quote with two sections',
+        dates: {
+            created: null,
+            started: null,
+            finished: null,
+            tested: null,
+            deployed: null
+        },
+        tags: ['onHold', 'Report to Mel'],
+        deploymentData: null,
+        microServicesBranchData: microServicesBranchData[2]
     }
 ]
 
 
-export default function tableDataSource() { return demoData }
+export default function tableDataSource() { return demoData.sort((v1, v2) => v1.mainDev.priority - v2.mainDev.priority) }
 export function getStatuses() { return statuses }
 export function getEmptyTask() {
     return {
@@ -170,7 +214,7 @@ export function getEmptyTask() {
         taskSubGroup: '',
         mainDev: '',
         collaborators: [],
-        status: statuses[0],
+        status: statuses[4],
         taskInfo: '',
         dates: {
             created: null,

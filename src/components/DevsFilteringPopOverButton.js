@@ -5,6 +5,11 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
+import IconButton from '@material-ui/core/IconButton';
+import FilterListIcon from '@material-ui/icons/FilterList';
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import DevChip from './DevChip'
 
 import tableDataSource, { getDevs } from '../tableData'
 
@@ -17,70 +22,79 @@ const useStyles = makeStyles((theme) => ({
 export default function DevsFilteringPopOverButton(props) {
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [selectedIds, setSelectedIds] = React.useState(props.filterDevIds);
 
     const devs = getDevs()
     const tasks = tableDataSource()
 
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = (e) => {
-        setAnchorEl(null);
-    };
-
+    const handleApply = e => {
+        props.setFilterDevIds(selectedIds)
+        handleClose();
+    }
+    const handleClose = e => setAnchorEl(null);
+    const handleIconClick = e => setAnchorEl(e.currentTarget)
+    const handleRemoveAll = e => {
+        props.setFilterDevIds([])
+        handleClose();
+    }
     const handleChange = (devId, isChecked) => {
-        let updatedDevIds = Object.values({ ...props.filterDevIds })
+        let updatedDevIds = Object.values({ ...selectedIds })
 
         if (isChecked)
             updatedDevIds.push(devId)
         else
             updatedDevIds = updatedDevIds.filter(id => id !== devId)
 
-        props.setFilterDevIds(updatedDevIds)
+        setSelectedIds(updatedDevIds)
     }
 
     const isOpen = Boolean(anchorEl);
-    const id = isOpen ? 'simple-popover' : undefined;
 
     return (
-        <div>
-            <Button
-                aria-describedby={id}
-                variant="contained"
-                color="primary"
-                onClick={handleClick}
-                id='dev-filtering-button'>
-                {devs.map(d => props.filterDevIds.includes(d.id) && d.name.charAt(0)).filter(d => d).join(',')}
-            </Button>
+        <>
+            <IconButton
+                className='filtering-header-icon'
+                onClick={handleIconClick}>
+                <FilterListIcon fontSize="small" color={props.filterDevIds.length === 0 ? 'disabled' : 'primary'} />
+            </IconButton>
             <Popover
-                id={id}
                 open={isOpen}
                 anchorEl={anchorEl}
                 onClose={handleClose}
                 anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'center',
+                    vertical: 'top',
+                    horizontal: 'right',
                 }}
                 transformOrigin={{
                     vertical: 'top',
-                    horizontal: 'center',
+                    horizontal: 'left',
                 }}
             >
                 <FormGroup column className='dev-popover'>
-                    {devs.map(dev => <FormControlLabel
-                        control={
+                    {devs.map((dev, i) => {
+
+                        const devAssociatedTasksQuantity = props.shortForm ?
+                            tasks.filter(task => task.collaborators.map(collDev => collDev.id).includes(dev.id)).length :
+                            tasks.filter(task => task.mainDev.id === dev.id).length
+
+                        return <div className='dev-popover-line'>
                             <Checkbox
-                                checked={props.filterDevIds.includes(dev.id)}
+                                checked={selectedIds.includes(dev.id)}
                                 onChange={e => handleChange(dev.id, e.target.checked)}
                                 color="primary"
                                 value={dev.id}
-                            />}
-                        label={`${dev.name} (${tasks.filter(task => task.mainDev.id === dev.id).length})`}
-                    />
-                    )}
+                                size='small'
+                            />
+                            <DevChip dev={dev} shortForm={props.shortForm} />
+                            <span>{`(${devAssociatedTasksQuantity})`}</span>
+                        </div>
+                    })}
                 </FormGroup>
+                <ButtonGroup className='filter-button-group' variant="contained" color="primary" size='small'>
+                    <Button color="secondary" onClick={handleRemoveAll}>Remove All</Button>
+                    <Button onClick={handleApply}>Apply</Button>
+                </ButtonGroup>
             </Popover>
-        </div>
+        </>
     );
 }

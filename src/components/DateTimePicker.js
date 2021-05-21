@@ -20,7 +20,6 @@ export default function DateTimePicker(props) {
     return (selectedDate ?
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <DatePicker
-                margin="normal"
                 format="MM/dd/yyyy"
                 value={selectedDate}
                 onChange={onDateChange}
