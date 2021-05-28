@@ -8,7 +8,6 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import ImportContactsIcon from '@material-ui/icons/ImportContacts';
 import IconButton from '@material-ui/core/IconButton';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
@@ -27,6 +26,7 @@ import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Chip from '@material-ui/core/Chip';
 import PauseCircleFilledIcon from '@material-ui/icons/PauseCircleFilled';
 import FreeBreakfastIcon from '@material-ui/icons/FreeBreakfast';
+import ImportContactsIcon from '@material-ui/icons/ImportContacts';
 
 import tableDataSource, { getStatuses, getEmptyTask, getDevs } from '../tableData'
 import difference from 'lodash/difference'
@@ -37,6 +37,9 @@ import DevsPopOverChip from './DevsPopOverChip'
 import TableContextMenu from './TableContextMenu'
 import TaskInfoModal from './TaskInfoModal'
 import DevChip from './DevChip'
+import DevsChangingPopOver from './DevsChangingPopOver'
+import StatusFilteringPopOver from './StatusFilteringPopOver'
+import StatusSelect from './StatusSelect'
 
 import { Scrollbars } from 'react-custom-scrollbars';
 
@@ -65,23 +68,6 @@ function DevSelect(props) {
             renderValue={() => getDevs().map(d => props.filterDevIds.includes(d.id) && d.name.charAt(0)).filter(d => d).join(',')}
         >
             {getDevs().map(dev => <MenuItem key={dev.id} value={dev.id}>{dev.name}</MenuItem>)}
-        </Select>
-    </FormControl>
-}
-
-function StatusSelect(props) {
-    const [currentStatusId, setCurrentStatusId] = useState(!props.filteringMode && props.status.id)
-
-    const handleChange = e => props.filteringMode ? props.setFilterStatusIds(e.target.value) : setCurrentStatusId(e.target.value)
-
-    return <FormControl variant="outlined">
-        <Select
-            value={props.filteringMode ? props.filterStatusIds : currentStatusId}
-            color='primary'
-            onChange={handleChange}
-            multiple={props.filteringMode}
-        >
-            {getStatuses().map(status => <MenuItem key={status.id} value={status.id}>{status.name}</MenuItem>)}
         </Select>
     </FormControl>
 }
@@ -127,7 +113,7 @@ export default function TasksTable(props) {
     const [tableRowsData, setTableRowsData] = useState([])
     const [taskModal, setTaskModal] = useState(null)
 
-    const [filterStatusIds, setFilterStatusIds] = useState(getStatuses().map(status => status.id))
+    const [filterStatusIds, setFilterStatusIds] = useState([])
     const [filterMainDevIds, setMainFilterDevIds] = useState([])
     const [filterCollDevIds, setCollFilterDevIds] = useState([])
     const [filterShowOnHolds, setFilterShowOnHolds] = useState(true);
@@ -136,6 +122,8 @@ export default function TasksTable(props) {
     const [showBranchesInfo, setShowBranchesInfo] = useState(false);
     const [showDatesInfo, setShowDatesInfo] = useState(false);
 
+    // const [dragHandlerData(), setDragHandlerData()] = useState(null);
+
     useEffect(() => {
         document.addEventListener("contextmenu", (event) => {
             event.preventDefault();
@@ -143,34 +131,18 @@ export default function TasksTable(props) {
     }, [])
 
     useEffect(() => {
-        console.log('tableData refreshed tasksData:', tasksData)
+        console.log('tableData refreshed tasksData:', tasksData, ' newTableRowsData:', getTableRowsData(tasksData))
         setTableRowsData(getTableRowsData(tasksData))
     }, [tasksData])
-
-    useEffect(() => {
-        var rows = Array.from(document.getElementsByClassName('task-row'))
-
-        rows && rows.forEach((row, i) => {
-            row.addEventListener("contextmenu", (event) => {
-                event.preventDefault();
-                const xPos = event.pageX
-                const yPos = event.pageY
-                const isOnHold = tasksData[i].tags.includes('onHold')
-
-                setContextMenuAnchor({ xPos: xPos, yPos: yPos, taskIndex: i, isOnHold: isOnHold })
-            });
-        });
-    }, [contextMenuAnchor, tasksData, tableRowsData, filterStatusIds, filterMainDevIds, filterCollDevIds, taskModal, filterShowOnHolds])
 
     useEffect(() => {
         filterTableData()
     }, [filterStatusIds, filterMainDevIds, filterCollDevIds, filterShowOnHolds])
 
     const filterTableData = () => {
-        console.log('filterTableData triggered')
         let newTableData = tableDataSource()
 
-        newTableData = newTableData.filter(item => filterStatusIds.includes(item.status.id)) //statuses filter
+        if (filterStatusIds.length > 0) newTableData = newTableData.filter(item => filterStatusIds.includes(item.status.id)) //statuses filter
 
         if (filterMainDevIds.length > 0) newTableData = newTableData.filter(item => filterMainDevIds.includes(item.mainDev.id)) //mainDev filter. if no option selected then no filtering required
 
@@ -181,6 +153,9 @@ export default function TasksTable(props) {
         setTasksData(newTableData)
     }
 
+    const setDragHandlerData = data => window.dragHandlerData = data
+    const dragHandlerData = () => window.dragHandlerData
+
     const classes = useStyles();
 
     const openTaskInfo = task => {
@@ -188,16 +163,14 @@ export default function TasksTable(props) {
     }
 
     const datesInfoItems = (task, readOnlyMode, showBranchesInfo) => {
-        const isLastDateCell = i => Object.entries(task.dates).length - 1 === i
-
-        return Object.entries(task.dates).map((entry, i) =>
-            <TableCell className={'cell-date-picker highlighted-cell' + (!showBranchesInfo && isLastDateCell(i) ? ' right-edge' : '')} align='center' >
+        const datesArray = Object.entries(task.dates)
+        return datesArray.map((entry, i) =>
+            <TableCell className={'cell-date-picker' + (showBranchesInfo && i === datesArray.length - 1 ? ' group-edge' : '')} align='center' >
                 <DateTimePicker dateName={capitalizeFirstLetter(entry[0])} date={entry[1]} readOnly={readOnlyMode} />
             </TableCell>)
     }
-    const branchesInfoItems = (task, datesDisplayed) => {
-        let isCellGroupHighlighted = !datesDisplayed
-        const isLastBranchInfoCell = i => Object.entries(task.microServicesBranchData).length - 2 === i //-2 because we slice(1)
+    const branchesInfoItems = task => {
+        let isCellGroupHighlighted = true
 
         return Object.entries(task.microServicesBranchData).slice(1).map((entry, i) => {
             let className = 'branch-info-cell'
@@ -205,8 +178,7 @@ export default function TasksTable(props) {
 
             if (entry[1] === 'demo') className += ' default-branch-name'
             if (isGroupEdgeCell) className += ' group-edge'
-            if (isCellGroupHighlighted) className += ' highlighted-cell'
-            if (isLastBranchInfoCell(i)) className += ' right-edge'
+            if (isCellGroupHighlighted) className += ' highlighted-branches-cell'
 
             if (isGroupEdgeCell) isCellGroupHighlighted = !isCellGroupHighlighted
 
@@ -222,21 +194,39 @@ export default function TasksTable(props) {
     const handleReadOnlyModeChange = e => setReadOnlyMode(!readOnlyMode)
     const handleFilterShowOnHoldsChange = e => setFilterShowOnHolds(!filterShowOnHolds)
 
-    const capitalizeFirstLetter = string => string.charAt(0).toUpperCase() + string.slice(1);
+    const handleRowOnContextMenu = (e, taskId, copyTaskGroup, copyTaskSubGroup) => {
+        e.stopPropagation()
+        e.preventDefault()
 
-    const addRow = atPotition => {
-        let updatedTableData = Object.assign({}, tasksData)
-
-        updatedTableData = Object.values(updatedTableData)
-        updatedTableData.splice(atPotition, 0, getEmptyTask())
-
-        setTasksData(updatedTableData)
+        setContextMenuAnchor({
+            xPos: e.pageX,
+            yPos: e.pageY,
+            taskId: taskId,
+            isOnHold: getTaskById(taskId).tags.includes('onHold'),
+            copyTaskGroup: copyTaskGroup,
+            copyTaskSubGroup: copyTaskSubGroup
+        })
     }
 
-    const removeRow = atPotition => {
-        let updatedTaskData = tasksData
+    const capitalizeFirstLetter = string => string.charAt(0).toUpperCase() + string.slice(1);
 
-        updatedTaskData.splice(atPotition, 1)
+    const addRow = (taskId, addBelow, copyTaskGroup, copyTaskSubGroup) => {
+        let updatedTasksData = Object.values(Object.assign({}, tasksData))
+
+        const sourceTask = updatedTasksData.find(task => task.id === taskId)
+        const newTaskGroup = copyTaskGroup ? sourceTask.taskGroup : ''
+        const newTaskSubGroup = copyTaskSubGroup ? sourceTask.taskSubGroup : ''
+        const newRowPositionIndex = updatedTasksData.map(task => task.id).indexOf(taskId) + (addBelow ? 1 : 0)
+        updatedTasksData.splice(newRowPositionIndex, 0, getEmptyTask(tasksData.length, sourceTask.mainDev, newTaskGroup, newTaskSubGroup))
+
+        setTasksData(updatedTasksData)
+    }
+
+    const removeRow = taskId => {
+        let updatedTaskData = tasksData
+        const rowPositionIndex = updatedTaskData.map(task => task.id).indexOf(taskId)
+
+        updatedTaskData.splice(rowPositionIndex, 1)
 
         setTasksData(updatedTaskData)
     }
@@ -247,6 +237,7 @@ export default function TasksTable(props) {
 
         newTableData[taskIndex].taskInfo = updatedTask.taskInfo
         newTableData[taskIndex].taskName = updatedTask.taskName
+        newTableData[taskIndex].taskNotes = updatedTask.taskNotes
         setTasksData(newTableData)
     }
 
@@ -267,8 +258,144 @@ export default function TasksTable(props) {
     });
 
     const onSortStart = ({ node, index, collection, isKeySorting }) => {
-        document.getElementById('tasks-table').classList.add("active-drag-mode")
+        getTableDOM().classList.add("active-drag-mode")
+
+        let dragAffectedRowIndexes = getDragAffectedRowIndexes()
+
+        getCurrentRowsDOM().forEach((row, index) => {
+            if (dragAffectedRowIndexes.includes(index)) row.classList.add("active-drag-mode-row")
+        })
+
+        let shadowsClass
+        switch (dragAffectedRowIndexes.length) {
+            case 1:
+                //produces null to have no shadow
+                break;
+            case 2:
+                shadowsClass = 'shadow-1'
+                break;
+            case 3:
+                shadowsClass = 'shadow-2'
+                break;
+            default:
+                shadowsClass = 'shadow-many'
+                break;
+        }
+        getMainActiveRowDOM().classList.remove('shadow-1', 'shadow-2', 'shadow-many') //remove old shadows
+        if (shadowsClass) getMainActiveRowDOM().classList.add(shadowsClass) //set new one if need
     }
+
+    const onSortEnd = useCallback(({ oldIndex: oldRowIndex, newIndex: newRowIndex }) => {
+        let dragAffectedRowIndexes = getDragAffectedRowIndexes()
+        let originalPlace = oldRowIndex < newRowIndex ? newRowIndex + 1 : newRowIndex
+        console.log('old:', oldRowIndex, ' new:', newRowIndex, ' originalPlace:', originalPlace)
+
+
+        //console.log('onSortEnd dragAffectedRowIndexes:', dragAffectedRowIndexes, 'newRowIndex before:', newRowIndex)
+
+        if (oldRowIndex !== newRowIndex) {
+            const newTableRowsData = getTableRowsData(tasksData)
+
+            if (dragAffectedRowIndexes.length === 1) {
+                const movingTask = newTableRowsData.splice(oldRowIndex, 1)[0]
+                newTableRowsData.splice(newRowIndex, 0, movingTask)
+
+                if (newRowIndex === 0) {
+                    newTableRowsData[newRowIndex].mainDev = newTableRowsData[1].isBorder ? newTableRowsData[1].prevDev : newTableRowsData[1].mainDev
+                } else {
+                    const newDevSourceRow = newTableRowsData[newRowIndex - 1]
+                    if (newDevSourceRow) newTableRowsData[newRowIndex].mainDev = newDevSourceRow.isBorder ? newDevSourceRow.nextDev : newDevSourceRow.mainDev
+                }
+            } else {
+                // let movingTasks = []
+                // let newDev
+
+                // if (newRowIndex === 0) {
+                //     newDev = newTableRowsData[1].isBorder ? newTableRowsData[1].prevDev : newTableRowsData[1].mainDev
+                // } else {
+                //     const newDevSourceRow = newTableRowsData[newRowIndex]
+
+                //     if (newDevSourceRow) {
+                //         if (newDevSourceRow.isBorder)
+                //             if (oldRowIndex < newRowIndex)
+                //                 newDev = newDevSourceRow.nextDev
+                //             else
+                //                 newDev = newDevSourceRow.prevDev
+                //         else
+                //             newDev = newDevSourceRow.mainDev
+                //     }
+                // }
+
+                // dragAffectedRowIndexes.filter(rowIndex => rowIndex < newRowIndex && rowIndex !== oldRowIndex).forEach(rowIndex => newRowIndex--)
+
+                // dragAffectedRowIndexes.slice().reverse().forEach(affectedRowIndex => {
+                //     const movingTask = newTableRowsData.splice(affectedRowIndex, 1)[0]
+
+                //     movingTask.mainDev = newDev
+
+                //     movingTasks.push(movingTask)
+                // })
+                // //  console.log('newRowIndex after:', newRowIndex, 'new dev:', newDev)
+                // newTableRowsData.splice(newRowIndex, 0, ...movingTasks)
+                // // console.log('newTableRowsData:', newTableRowsData)
+
+                //way 2
+                let newDev
+                let prevTaskPriority
+
+                if (newTableRowsData[originalPlace].isBorder) {
+                    newDev = newTableRowsData[originalPlace].prevDev
+                    prevTaskPriority = 0
+
+                } else {
+                    newDev = newTableRowsData[originalPlace].mainDev
+                    prevTaskPriority = newTableRowsData[originalPlace].devPriority
+                }
+
+                const priorityShiftNumber = dragAffectedRowIndexes.count - dragAffectedRowIndexes.map(rowIndex => newTableRowsData[rowIndex].mainDev.id === newDev.id).filter(alreadyBelongsToThisDev => alreadyBelongsToThisDev).length
+
+                newTableRowsData.map((rowData, i) => {
+                    if (dragAffectedRowIndexes.includes(i)) {
+                        rowData.mainDev = newDev
+                        rowData.devPriority = prevTaskPriority
+                        prevTaskPriority++
+                    } else if (!rowData.isBorder && rowData.mainDev.id === newDev.id) {
+                        rowData.devPriority += priorityShiftNumber
+                    }
+                    return rowData
+                }).filter(row => !row.isBorder).sort(task => task.mainDev.priority)
+
+                console.log('new dev:', newDev.name)
+            }
+
+            setTasksData(newTableRowsData.filter(row => !row.isBorder));
+        } else {
+            getTableDOM().classList.remove("active-drag-mode")
+            getCurrentRowsDOM().forEach(row => row.classList.remove('active-drag-mode-row'))
+        }
+    }, []);
+
+    const getDragAffectedRowIndexes = () => {
+        const tableRowsDataSource = tableRowsData.length > 0 ? tableRowsData : dragHandlerData().tableRowsData
+
+        switch (dragHandlerData().mode) {
+            case 0:
+                return tableRowsDataSource.map((row, i) => !row.isBorder && row.mainDev.id === dragHandlerData().task.mainDev.id ? i : null).filter(index => index !== null) //with out !== null it ignores [0]
+
+            case 1:
+                return tableRowsDataSource.map((row, i) => !row.isBorder && row.taskGroup === dragHandlerData().task.taskGroup ? i : null).filter(index => index !== null) //with out !== null it ignores [0]
+
+            case 2:
+                return tableRowsDataSource.map((row, i) => !row.isBorder && row.taskSubGroup === dragHandlerData().task.taskSubGroup ? i : null).filter(index => index !== null) //with out !== null it ignores [0]
+
+            case 3:
+                return tableRowsDataSource.map((row, i) => !row.isBorder && row.id === dragHandlerData().task.id ? i : null).filter(index => index !== null) //with out !== null it ignores [0]
+        }
+    }
+
+    const getMainActiveRowDOM = () => document.getElementsByClassName('active-drag-mode-row-main')[0]
+    const getTableDOM = () => document.getElementById('tasks-table')
+    const getCurrentRowsDOM = () => Array.from(getTableDOM().children[1].children)
 
     const getTableRowsData = (tasksData) => {
         let devs = getDevs()
@@ -276,13 +403,8 @@ export default function TasksTable(props) {
 
         devs.forEach((dev, index) => {
             const devTasks = tasksData.filter(task => task.mainDev.id === dev.id)
-            const bottomRoundItemIndex = devTasks.length - 1
 
-            devTasks.forEach((task, i) => {
-                task.topRounded = i === 0
-                task.bottomRounded = i === bottomRoundItemIndex
-                newTableRowsData.push(task)
-            })
+            devTasks.forEach(task => newTableRowsData.push(task))
 
             if (index !== devs.length - 1)
                 newTableRowsData.push({
@@ -294,26 +416,9 @@ export default function TasksTable(props) {
 
         return newTableRowsData
     }
+    const getTaskById = id => tasksData.find(task => task.id === id)
 
-    const onSortEnd = useCallback(({ oldIndex: oldRowIndex, newIndex: newRowIndex }) => {
-        if (oldRowIndex !== newRowIndex) {
-            const newTableRowsData = getTableRowsData(tasksData)
-            const movingTask = newTableRowsData.splice(oldRowIndex, 1)[0]
-            newTableRowsData.splice(newRowIndex, 0, movingTask)
-
-            if (newRowIndex === 0) {
-                newTableRowsData[newRowIndex].mainDev = newTableRowsData[1].isBorder ? newTableRowsData[1].prevDev : newTableRowsData[1].mainDev
-            } else {
-                const newDevSourceRow = newTableRowsData[newRowIndex - 1]
-                if (newDevSourceRow) newTableRowsData[newRowIndex].mainDev = newDevSourceRow.isBorder ? newDevSourceRow.nextDev : newDevSourceRow.mainDev
-
-            }
-
-            setTasksData(newTableRowsData.filter(row => !row.isBorder));
-        } else {
-            document.getElementById('tasks-table').classList.remove("active-drag-mode")
-        }
-    }, []);
+    const onMouseEnterDragHandler = (task, mode) => setDragHandlerData({ task: task, mode: mode, tableRowsData: tableRowsData })
 
     const arrayMoveMutate = (array, from, to) => {
         array.splice(to < 0 ? array.length + to : to, 0, array.splice(from, 1)[0]);
@@ -327,47 +432,26 @@ export default function TasksTable(props) {
 
     const SortableTableRow = SortableElement(props => props.isBorder ? <SortableTableBorderRowElement {...props} /> : <SortableTableRowElement {...props} />);
 
-    const RowHandler = SortableHandle(() => <DragIndicatorIcon style={{ cursor: 'grab' }} />);
+    const RowHandler = SortableHandle(props => <DragIndicatorIcon onMouseEnter={e => onMouseEnterDragHandler(props.task, props.mode)} style={{ cursor: 'grab' }} />);
 
     const SortableTableRowElement = props => {
 
-        const onDeleteCollaborator = removingDev => {
+
+        const handleSaveDevs = newDevs => {
             let newTableData = Object.values({ ...tasksData })
 
-            const newCollaborators = newTableData[props.taskIndex].collaborators.filter(dev => dev.id !== removingDev.id)
-            newTableData[props.taskIndex].collaborators = newCollaborators
-
+            newTableData[props.taskIndex].collaborators = newDevs
             setTasksData(newTableData)
         }
 
-        const renderCollaboratorsCell = props => {
-            const devsSource = []
-            getDevs().forEach(dev => {
-                //if (!props.task.collaborators) { debugger }
-                const devIsAlreadyCollaborator = props.task.collaborators.map(collDev => collDev.id).includes(dev.id)
-
-                !devIsAlreadyCollaborator && devsSource.push(dev)
-            })
-
-            const handleMainCollaboratorSelected = dev => {
-                let newTableData = Object.values({ ...tasksData })
-
-                newTableData[props.taskIndex].collaborators.push(dev)
-                setTasksData(newTableData)
-            }
-
-            return [
-                props.task.collaborators.map(dev =>
-                    <DevChip
-                        dev={dev}
-                        shortForm
-                        onDelete={readOnlyMode ? null : onDeleteCollaborator}
-                    />),
-                !readOnlyMode && <DevsPopOverChip
-                    devsSource={devsSource}
-                    handleDevSelected={handleMainCollaboratorSelected}
-                    empty />]
-        }
+        const renderActionButtons = () =>
+            <ButtonGroup className='actions-button-group' variant="contained" size="small" color="primary">
+                {props.task.status.actions.map(action => {
+                    let className
+                    if (action === 'Pass') className += ' green-button'
+                    return <Button color={action === 'Fail' ? 'secondary' : "primary"} className={className}>{action}</Button>
+                })}
+            </ButtonGroup>
 
 
         const handleMainDevSelected = dev => {
@@ -376,9 +460,19 @@ export default function TasksTable(props) {
             newTableData[props.taskIndex].mainDev = dev
             setTasksData(newTableData)
         }
+
+        const handleOnChangeTaskStatus = (taskId, newStatusId) => {
+            let newTableData = Object.values({ ...tasksData })
+            const taskIndex = newTableData.map(task => task.id).indexOf(taskId)
+
+            newTableData[taskIndex].status = getStatuses().find(status => status.id === newStatusId)
+            setTasksData(newTableData)
+            filterTableData()
+        }
+
         return (
-            <TableRow className={'task-row' + (props.task.topRounded ? ' top-rounded' : '') + (props.task.bottomRounded ? ' bottom-rounded' : '')} key={props.task.id}>
-                <TableCell align='center' className='cell-dragger'><RowHandler /></TableCell>
+            <TableRow className={'task-row'} key={props.task.id} onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, false, false) }}>
+                <TableCell align='center' className='cell-dragger'><RowHandler task={props.task} mode={0} /></TableCell>
                 <TableCell align='center' className='cell-main-dev-name'>
                     <DevsPopOverChip
                         readOnly={readOnlyMode}
@@ -388,39 +482,46 @@ export default function TasksTable(props) {
                     />
                 </TableCell>
                 <TableCell align='center' className='cell-priority'>
-                    {props.task.tags.includes('onHold') && <PauseCircleFilledIcon color='action' />}
+                    {props.task.tags.includes('onHold') ? <PauseCircleFilledIcon color='action' /> : props.task.devPriority}
                 </TableCell>
-                <TableCell align='center' className='cell-task-group'>{props.task.taskGroup}</TableCell>
-                <TableCell align='center' className='cell-task-sub-group'>{props.task.taskSubGroup}</TableCell>
-                <TableCell align='center' className='cell-task-name'>
-                    {readOnlyMode ?
-                        props.task.taskName :
-                        <TextField defaultValue={props.task.taskName} />}
+                <TableCell className='cell-task-group' onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, true, false) }}><div><RowHandler task={props.task} mode={1} />{props.task.taskGroup}</div></TableCell>
+                <TableCell className='cell-task-sub-group' onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, true, true) }}><div><RowHandler task={props.task} mode={2} />{props.task.taskSubGroup}</div></TableCell>
+                <TableCell className='cell-task-name'>
+                    <div><RowHandler task={props.task} mode={3} />
+                        {readOnlyMode ?
+                            props.task.taskName :
+                            <TextField defaultValue={props.task.taskName} />}
+                    </div>
                 </TableCell>
                 <TableCell align='center' className='cell-collaborators'>
-                    {renderCollaboratorsCell(props)}
+                    <DevsChangingPopOver
+                        readOnlyMode={readOnlyMode}
+                        handleSaveDevs={handleSaveDevs}
+                        taskMainDevId={props.task.mainDev.id}
+                        taskCollaborators={props.task.collaborators}
+                    />
                 </TableCell>
                 <TableCell align='center' className='cell-status'>
                     {readOnlyMode ?
                         props.task.status.name :
-                        <StatusSelect status={props.task.status} filteringMode={false} />}
+                        <StatusSelect
+                            currentStatus={props.task.status}
+                            taskId={props.task.id}
+                            handleOnChangeTaskStatus={handleOnChangeTaskStatus} />}
                 </TableCell>
                 <TableCell align='center' className='cell-action' >
-
-                    <ButtonGroup className='actions-button-group' variant="contained" size="small" color="primary">
-                        {props.task.status.actions.map(action => <Button color="primary">{action}</Button>)}
-                    </ButtonGroup>
+                    {renderActionButtons()}
                 </TableCell>
-                <TableCell align='center' className={'cell-task-info' + (!showDatesInfo && !showBranchesInfo ? ' right-edge' : ' group-edge')}>
+                <TableCell align='center' className={'cell-task-info' + (showDatesInfo || showBranchesInfo ? ' group-edge' : '')}>
                     <Tooltip title={props.task.taskInfo} arrow interactive>
                         <IconButton onClick={() => { openTaskInfo(props.task) }}>
                             <ImportContactsIcon fontSize="medium" color='primary' />
                         </IconButton>
                     </Tooltip>
                 </TableCell>
-                {showDatesInfo && datesInfoItems(props.task, readOnlyMode, showBranchesInfo)}
-                {showBranchesInfo && branchesInfoItems(props.task, showDatesInfo)}
-            </TableRow>
+                { showDatesInfo && datesInfoItems(props.task, readOnlyMode, showBranchesInfo)}
+                { showBranchesInfo && branchesInfoItems(props.task)}
+            </TableRow >
         )
     };
 
@@ -430,8 +531,10 @@ export default function TasksTable(props) {
 
         for (let i = 0; i < cellsCount; i++) {
             emptyCells.push(<TableCell >
-                <div style={{ background: `linear-gradient(transparent 100%,${(props.prevDev.color)}) 30%` }} />
-                <div style={{ background: `linear-gradient(${(props.nextDev.color)},transparent)` }} />
+                {/* <div style={{ background: `linear-gradient(transparent 100%, ${(props.prevDev.color)}) 30%` }} />
+                <div style={{ background: `linear-gradient(${(props.nextDev.color)},transparent)` }} /> */}
+                <div style={{ backgroundColor: props.prevDev.color }} />
+                <div style={{ backgroundColor: props.nextDev.color }} />
             </TableCell>)
         }
 
@@ -449,50 +552,6 @@ export default function TasksTable(props) {
         );
     }
 
-    const renderTestCollsSelect = () => {
-        const devs = getDevs()
-        const options = devs.map(dev => { return { value: { dev }, label: dev.name } })
-
-        const formatOptionLabel = ({ value, label }) => {
-            return <DevChip
-                dev={value.dev}
-            />
-        }
-
-        // const currentTags = getDevs()
-        // const handleChange = (options) => {
-        //     const optionsValue = options.map(({ value }) => value)
-        //     if (this.currentTags.length < options.length) {
-        //         const addedElement = difference(optionsValue, this.currentTags)[0]
-        //         this.currentTags.push(addedElement)
-        //         console.log("addedElement", addedElement)
-        //         //call custom add event here
-        //     }
-        //     else {
-        //         let removedElement = difference(this.currentTags, optionsValue)[0]
-        //         console.log("removedElement", removedElement)
-        //         // call custom removed event here
-        //         let index = this.currentTags.indexOf(removedElement)
-        //         if (index !== -1) {
-        //             this.currentTags.splice(index, 1)
-        //         }
-        //     }
-        // }
-
-        return <SelectFromLib
-            options={options}
-            //controlShouldRenderValue={false}
-            closeMenuOnSelect={false}
-            isClearable={false}
-            //formatOptionLabel={formatOptionLabel} works
-            isMulti
-            //controlShouldRenderValue
-            //filterOption={() => true}
-            //filterOption
-            // handleChange={handleChange}
-            placeholder='Collaborators' />
-    }
-
     const renderTableRows = props => {
         if (tableRowsData.length === getDevs().length - 1)
             return <TableRow className='no-tasks-row'><TableCell align='center' className='cell-dragger'><div className='no-tasks-row'>No availible tasks satisfy current filtration</div></TableCell><TableCell /></TableRow>
@@ -504,7 +563,7 @@ export default function TasksTable(props) {
                     isBorder={row.isBorder}
                     prevDev={row.prevDev}
                     nextDev={row.nextDev}
-                    taskIndex={0}
+                    taskIndex={row.isBorder ? null : tasksData.map(task => task.id).indexOf(row.id)}
                     task={row}
                     showDatesInfo={showDatesInfo}
                     showBranchesInfo={showBranchesInfo}
@@ -534,11 +593,11 @@ export default function TasksTable(props) {
                     // lockToContainerEdges={true}
                     //lockOffset={["30%", "50%"]}
                     useDragHandle
-                    helperClass='active-drag-mode-row'
+                    helperClass='active-drag-mode-row-main active-drag-mode-row'
                 >
                     <Table className={classes.table} size="small" id='tasks-table'>
                         <TableHead>
-                            <TableRow className='filter-row'>
+                            {/* <TableRow className='filter-row'>
                                 <TableCell align='center' className='cell-dragger'></TableCell>
                                 <TableCell align='center' className='cell-main-dev-name' ></TableCell>
                                 <TableCell align='center' className='cell-priority'></TableCell>
@@ -551,7 +610,7 @@ export default function TasksTable(props) {
                                 <TableCell align='center' className='cell-task-info' ></TableCell>
                                 {showDatesInfo && datesInfoHeaders()}
                                 {showBranchesInfo && branchesInfoHeaders()}
-                            </TableRow>
+                            </TableRow> */}
                             <TableRow className='black-row'>
                                 <TableCell align='center' className='cell-dragger'>
                                     <div>
@@ -588,9 +647,7 @@ export default function TasksTable(props) {
                                 </TableCell>
                                 <TableCell align='center' className='cell-status' >
                                     Status
-                                    <IconButton className='filtering-header-icon' onClick={() => { }}>
-                                        <FilterListIcon fontSize="small" color='primary' />
-                                    </IconButton>
+                                    <StatusFilteringPopOver filterStatusIds={filterStatusIds} setFilterStatusIds={setFilterStatusIds} />
                                 </TableCell>
                                 <TableCell align='center' className='cell-action' >
                                     <div>

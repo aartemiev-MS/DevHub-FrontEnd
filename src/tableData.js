@@ -1,3 +1,5 @@
+import { getMountData } from './backendRequests'
+
 const microServicesBranchData = [
     {
         Id: '0',
@@ -106,6 +108,7 @@ let demoData = [
         collaborators: [],
         status: statuses[0],
         taskInfo: 'We need to find out why sometimes shipping fails',
+        taskNotes: 'Notes of id=0',
         dates: {
             created: "2021-03-20T10:30",
             started: null,
@@ -127,6 +130,7 @@ let demoData = [
         collaborators: [getDevs()[0], getDevs()[3], getDevs()[4]],
         status: statuses[1],
         taskInfo: 'Endless exceptions in the EditCustomer form',
+        taskNotes: 'Notes of id=1',
         dates: {
             created: "2021-04-10T10:30",
             started: "2021-04-20T12:10",
@@ -148,6 +152,7 @@ let demoData = [
         collaborators: [getDevs()[3], getDevs()[4]],
         status: statuses[5],
         taskInfo: 'AIS suddenly logs user out',
+        taskNotes: 'Notes of id=2',
         dates: {
             created: "2021-03-10T10:30",
             started: "2021-03-10T12:10",
@@ -169,6 +174,7 @@ let demoData = [
         collaborators: [getDevs()[0], getDevs()[3]],
         status: statuses[2],
         taskInfo: 'Harmonize the order of columns between code, instructions and screenshot. (use order in code)',
+        taskNotes: 'Notes of id=3',
         dates: {
             created: null,
             started: null,
@@ -190,6 +196,7 @@ let demoData = [
         collaborators: [getDevs()[0], getDevs()[3], getDevs()[4]],
         status: statuses[3],
         taskInfo: 'Follow-up quote allows Print-all with optionsquote-pdf. Add popup menu to Follow-up quote with two sections',
+        taskNotes: 'Notes of id=4',
         dates: {
             created: null,
             started: null,
@@ -204,17 +211,22 @@ let demoData = [
 ]
 
 
-export default function tableDataSource() { return demoData.sort((v1, v2) => v1.mainDev.priority - v2.mainDev.priority) }
+export default function tableDataSource() {
+    // getMountData().then(data => {
+    //     return data
+    // })
+    return demoData.sort((v1, v2) => v1.mainDev.priority - v2.mainDev.priority)
+}
 export function getStatuses() { return statuses }
-export function getEmptyTask() {
+export function getEmptyTask(id, mainDev, newTaskGroup, newTaskSubGroup) {
     return {
-        id: '3',
+        id: id,
         taskName: '',
-        taskGroup: '',
-        taskSubGroup: '',
-        mainDev: '',
+        taskGroup: newTaskGroup,
+        taskSubGroup: newTaskSubGroup,
+        mainDev: mainDev,
         collaborators: [],
-        status: statuses[4],
+        status: statuses[0],
         taskInfo: '',
         dates: {
             created: null,

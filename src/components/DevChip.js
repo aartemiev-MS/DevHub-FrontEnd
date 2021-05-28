@@ -17,11 +17,10 @@ export default (props) => {
             onClick={props.onClick}
         /> :
         <Chip
-            size={props.shortForm ? "small" : 'medium'}
+            size="small"
             label={props.shortForm ? getInitials_Short(props.dev.name) : getInitials_Long(props.dev.name)}
-            style={{ backgroundColor: props.dev.color, color: props.dev.isWhiteText ? 'white' : 'black' }}
+            style={{ backgroundColor: props.dev.color, color: props.dev.isWhiteText ? 'white' : 'black', cursor: 'pointer' }}
             clickable={props.clickable}
             onClick={props.clickable && props.onClick}
-            onDelete={props.onDelete ? e => props.onDelete(props.dev) : null}
         />
 }

@@ -3,6 +3,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import Chip from '@material-ui/core/Chip';
 
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -50,25 +51,25 @@ export default function TableContextMenu(props) {
     };
 
     const onClickAddAbove = e => {
-        props.addRow(props.contextMenuAnchor.taskIndex)
+        props.addRow(props.contextMenuAnchor.taskId, false, props.contextMenuAnchor.copyTaskGroup, props.contextMenuAnchor.copyTaskSubGroup)
         handleClose()
     }
 
     const onClickAddBelow = e => {
-        props.addRow(props.contextMenuAnchor.taskIndex + 1)
+        props.addRow(props.contextMenuAnchor.taskId, true, props.contextMenuAnchor.copyTaskGroup, props.contextMenuAnchor.copyTaskSubGroup)
         handleClose()
     }
 
     const onClickRemove = e => {
-        props.removeRow(props.contextMenuAnchor.taskIndex)
+        props.removeRow(props.contextMenuAnchor.taskId)
         handleClose()
     }
 
     const onClickOnHoldAction = e => {
-        props.onHoldAction(props.contextMenuAnchor.taskIndex, props.contextMenuAnchor.isOnHold)
+        props.onHoldAction(props.contextMenuAnchor.taskId, props.contextMenuAnchor.isOnHold)
         handleClose()
     }
-
+    console.log(props)
     return (
         <StyledMenu
             id="customized-menu"
@@ -82,6 +83,8 @@ export default function TableContextMenu(props) {
             <StyledMenuItem onClick={onClickAddAbove}>
                 <ListItemIcon>
                     <KeyboardArrowUpIcon fontSize="medium" />
+                    {props.contextMenuAnchor.copyTaskGroup && <Chip size="small" label='tg' clickable={false} />}
+                    {props.contextMenuAnchor.copyTaskSubGroup && <Chip size="small" label='tsg' clickable={false} />}
                 </ListItemIcon>
                 <ListItemText primary="Add a row above" />
             </StyledMenuItem>
@@ -103,7 +106,7 @@ export default function TableContextMenu(props) {
                     <ListItemIcon>
                         <PlayCircleFilledIcon fontSize="medium" />
                     </ListItemIcon>
-                    <ListItemText primary="Remove from hold" />
+                    <ListItemText primary="Remove hold" />
                 </StyledMenuItem> :
                 <StyledMenuItem onClick={onClickOnHoldAction}>
                     <ListItemIcon>

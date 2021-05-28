@@ -123,6 +123,12 @@ code {
   background-color: white;
   z-index: 1;
 }
+.cell-task-group > div,
+.cell-task-sub-group > div,
+.cell-task-name > div {
+  display: flex;
+  line-height: 24px;
+}
 .cell-task-group {
   left: 175px;
 }
@@ -145,7 +151,12 @@ code {
   z-index: 3;
 }
 
+.cell-date-picker {
+  background-color: lightyellow;
+}
+
 .cell-date-picker > div {
+  background-color: white;
   margin: 0;
 }
 
@@ -246,22 +257,53 @@ li.Mui-selected {
   height: 10px;
 }
 .active-drag-mode-row > td {
-  background-color: lightgrey !important;
+}
+.active-drag-mode-row {
+  background: repeating-linear-gradient(
+    45deg,
+    white,
+    white 20px,
+    silver 20px,
+    silver 40px
+  );
+}
+.active-drag-mode-row > td {
+  background-color: transparent;
+}
+
+.shadow-1 {
+  box-shadow: 5px 5px 0px 0px #202020, 5px 5px 15px 5px rgba(0, 0, 0, 0);
+}
+.shadow-2 {
+  box-shadow: 5px 5px 0px 0px #202020, 10px 10px 0px 0px #484848,
+    5px 5px 15px 5px rgba(0, 0, 0, 0);
+}
+.shadow-many {
+  box-shadow: 5px 5px 0px 0px #202020, 10px 10px 0px 0px #484848,
+    15px 15px 0px 0px #696969, 5px 5px 15px 5px rgba(0, 0, 0, 0);
 }
 
 .border-row > td {
   padding: 4px 0 !important;
 }
 
-.highlighted-cell {
+.highlighted-branches-cell {
   background-color: lavender;
 }
 
 .modal-task-header {
   display: flex;
-  width: 500px;
+  width: 700px;
   align-items: center;
   margin-bottom: 25px;
+}
+
+.modal-task-inputs-wrapper {
+  display: flex;
+}
+.modal-task-inputs-wrapper > div,
+.modal-task-info {
+  margin: 0 10px !important;
 }
 
 .no-tasks-row {
@@ -273,4 +315,28 @@ li.Mui-selected {
 
 .filter-button-group {
   margin: 0 10px 10px 10px;
+  display: flex !important;
+  justify-content: center;
+}
+
+.green-button {
+  background-color: green !important;
+}
+
+.dev-chips-group {
+  padding: 0 !important;
+}
+
+.devs-apply-button-group {
+  display: flex !important;
+  justify-content: center;
+}
+
+.status-form-control {
+  margin-left: 0px !important;
+  margin-right: 5px !important;
+}
+
+.actions-button-group > button > span {
+  font-size: 10px;
 }

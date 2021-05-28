@@ -34,11 +34,12 @@ export default function TaskInfoModal(props) {
     const [isReadonly, setIsReadonly] = useState(props.readOnlyMode)
     const [taskName, setTaskName] = useState(props.taskModal.taskName)
     const [taskInfo, setTaskInfo] = useState(props.taskModal.taskInfo)
+    const [taskNotes, setTaskNotes] = useState(props.taskModal.taskNotes)
     const [isSaveRequired, setIsSaveRequired] = useState(false)
 
     useEffect(() => {
-        setIsSaveRequired(taskName !== props.taskModal.taskName || taskInfo !== props.taskModal.taskInfo)
-    }, [taskName, taskInfo])
+        setIsSaveRequired(taskName !== props.taskModal.taskName || taskInfo !== props.taskModal.taskInfo || taskNotes !== props.taskModal.taskNotes)
+    }, [taskName, taskInfo, taskNotes])
 
     const classes = useStyles();
 
@@ -51,6 +52,9 @@ export default function TaskInfoModal(props) {
 
             case 'taskInfo':
                 setTaskInfo(e.target.value)
+
+            case 'taskNotes':
+                setTaskNotes(e.target.value)
         }
     }
     const handleOnChangeName = e => {
@@ -61,6 +65,7 @@ export default function TaskInfoModal(props) {
 
         updatedTask.taskName = taskName
         updatedTask.taskInfo = taskInfo
+        updatedTask.taskNotes = taskNotes
 
         props.saveTask(updatedTask)
         handleClose()
@@ -86,7 +91,7 @@ export default function TaskInfoModal(props) {
                             defaultValue={taskName}
                             name='taskName'
                             inputProps={{ readOnly: isReadonly }}
-                            onChange={handleOnChangeName}
+                            onChange={handleOnChangeInfo}
                         />
                         <IconButton className={classes.iconButton} onClick={handleReadOnlyModeChange}>
                             <EditIcon fontSize='large' color={isReadonly ? 'disabled' : 'primary'} />
@@ -98,17 +103,30 @@ export default function TaskInfoModal(props) {
                             <CancelIcon fontSize='large' color='secondary' />
                         </IconButton>
                     </div>
-                    <TextField
-                        className="modal-task-info"
-                        label="Task Info"
-                        variant="outlined"
-                        fullWidth
-                        multiline
-                        defaultValue={taskInfo}
-                        name='taskInfo'
-                        inputProps={{ readOnly: isReadonly }}
-                        onChange={handleOnChangeInfo}
-                    />
+                    <div className='modal-task-inputs-wrapper'>
+                        <TextField
+                            className="modal-task-info"
+                            label="Task Info"
+                            variant="outlined"
+                            fullWidth
+                            multiline
+                            defaultValue={taskInfo}
+                            name='taskInfo'
+                            inputProps={{ readOnly: isReadonly }}
+                            onChange={handleOnChangeInfo}
+                        />
+                        <TextField
+                            className="modal-task-info"
+                            label="Notes"
+                            variant="outlined"
+                            fullWidth
+                            multiline
+                            defaultValue={taskNotes}
+                            name='taskNotes'
+                            inputProps={{ readOnly: isReadonly }}
+                            onChange={handleOnChangeInfo}
+                        />
+                    </div>
                 </div>
             </Fade>
         </Modal>
