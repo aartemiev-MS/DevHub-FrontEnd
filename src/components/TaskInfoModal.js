@@ -32,14 +32,14 @@ const useStyles = makeStyles((theme) => ({
 
 export default function TaskInfoModal(props) {
     const [isReadonly, setIsReadonly] = useState(props.readOnlyMode)
-    const [taskName, setTaskName] = useState(props.taskModal.taskName)
-    const [taskInfo, setTaskInfo] = useState(props.taskModal.taskInfo)
-    const [taskNotes, setTaskNotes] = useState(props.taskModal.taskNotes)
+    const [taskName, setTaskName] = useState(props.taskModal.name)
+    const [taskDescription, setTaskDescription] = useState(props.taskModal.description)
+    const [taskNotes, setTaskNotes] = useState(props.taskModal.notes)
     const [isSaveRequired, setIsSaveRequired] = useState(false)
 
     useEffect(() => {
-        setIsSaveRequired(taskName !== props.taskModal.taskName || taskInfo !== props.taskModal.taskInfo || taskNotes !== props.taskModal.taskNotes)
-    }, [taskName, taskInfo, taskNotes])
+        setIsSaveRequired(taskName !== props.taskModal.name || taskDescription !== props.taskModal.description || taskNotes !== props.taskModal.notes)
+    }, [taskName, taskDescription, taskNotes])
 
     const classes = useStyles();
 
@@ -49,28 +49,28 @@ export default function TaskInfoModal(props) {
         switch (e.target.name) {
             case 'taskName':
                 setTaskName(e.target.value)
+                break;
 
-            case 'taskInfo':
-                setTaskInfo(e.target.value)
+            case 'taskDescription':
+                setTaskDescription(e.target.value)
+                break;
 
             case 'taskNotes':
                 setTaskNotes(e.target.value)
+                break;
         }
-    }
-    const handleOnChangeName = e => {
-        setTaskName(e.target.value)
     }
     const handleOnSave = () => {
         let updatedTask = { ...props.taskModal }
 
-        updatedTask.taskName = taskName
-        updatedTask.taskInfo = taskInfo
-        updatedTask.taskNotes = taskNotes
+        updatedTask.name = taskName
+        updatedTask.description = taskDescription
+        updatedTask.notes = taskNotes
 
         props.saveTask(updatedTask)
         handleClose()
     }
-
+    console.log('TaskInfoModal props:', props)
     return (
         <Modal
             className={classes.modal}
@@ -82,7 +82,7 @@ export default function TaskInfoModal(props) {
                 timeout: 500,
             }}
         >
-            <Fade in={Boolean(taskInfo)}>
+            <Fade in={Boolean(props.taskModal)}>
                 <div className={classes.paper}>
                     <div className='modal-task-header'>
                         <TextField
@@ -96,7 +96,7 @@ export default function TaskInfoModal(props) {
                         <IconButton className={classes.iconButton} onClick={handleReadOnlyModeChange}>
                             <EditIcon fontSize='large' color={isReadonly ? 'disabled' : 'primary'} />
                         </IconButton>
-                        <IconButton className={classes.iconButton + ' ' + classes.saveIcon} onClick={handleOnSave}>
+                        <IconButton className={classes.iconButton + ' ' + classes.saveIcon} onClick={isSaveRequired ? handleOnSave : undefined}>
                             <SaveIcon fontSize='large' color={isSaveRequired ? 'primary' : 'disabled'} />
                         </IconButton>
                         <IconButton className={classes.iconButton} onClick={handleClose}>
@@ -110,8 +110,8 @@ export default function TaskInfoModal(props) {
                             variant="outlined"
                             fullWidth
                             multiline
-                            defaultValue={taskInfo}
-                            name='taskInfo'
+                            defaultValue={taskDescription}
+                            name='taskDescription'
                             inputProps={{ readOnly: isReadonly }}
                             onChange={handleOnChangeInfo}
                         />

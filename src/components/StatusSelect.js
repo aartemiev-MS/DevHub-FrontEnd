@@ -2,7 +2,7 @@ import React from 'react'
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import { getStatuses } from '../tableData'
+import { SubscriptionsOutlined } from '@material-ui/icons';
 
 export default function StatusSelect(props) {
 
@@ -10,11 +10,11 @@ export default function StatusSelect(props) {
 
     return <FormControl variant="outlined">
         <Select
-            value={props.currentStatus.id}
+            value={props.currentStatusId}
             color='primary'
             onChange={handleChange}
         >
-            {getStatuses().map(status => <MenuItem key={status.id} value={status.id}>{status.name}</MenuItem>)}
+            {props.statuses.map(status => <MenuItem key={status.id} value={status.id}>{status.statusName}</MenuItem>)}
         </Select>
     </FormControl>
 }

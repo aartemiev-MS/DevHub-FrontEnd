@@ -11,8 +11,6 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import DevChip from './DevChip'
 
-import tableDataSource, { getDevs } from '../tableData'
-
 const useStyles = makeStyles((theme) => ({
     typography: {
         padding: theme.spacing(2),
@@ -24,10 +22,8 @@ export default function DevsFilteringPopOverButton(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [selectedIds, setSelectedIds] = React.useState(props.filterDevIds);
 
-    const devs = getDevs()
-    const tasks = tableDataSource()
-
     const handleApply = e => {
+        console.log('applied filter ids:', selectedIds)
         props.setFilterDevIds(selectedIds)
         handleClose();
     }
@@ -49,7 +45,6 @@ export default function DevsFilteringPopOverButton(props) {
     }
 
     const isOpen = Boolean(anchorEl);
-
     return (
         <>
             <IconButton
@@ -65,10 +60,10 @@ export default function DevsFilteringPopOverButton(props) {
                 transformOrigin={{ vertical: 'top', horizontal: 'left', }}
             >
                 <FormGroup column className='dev-popover'>
-                    {devs.map(dev => {
+                    {props.devs.map(dev => {
                         const devAssociatedTasksQuantity = props.shortForm ?
-                            tasks.filter(task => task.collaborators.map(collDev => collDev.id).includes(dev.id)).length :
-                            tasks.filter(task => task.mainDev.id === dev.id).length
+                            props.tasks.filter(task => task.collaboratorsIds.includes(dev.id)).length :
+                            props.tasks.filter(task => task.mainDevId === dev.id).length
 
                         return <div className='dev-popover-line'>
                             <Checkbox

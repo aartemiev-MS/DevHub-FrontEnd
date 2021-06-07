@@ -19,8 +19,8 @@ export default (props) => {
         <Chip
             size="small"
             label={props.shortForm ? getInitials_Short(props.dev.name) : getInitials_Long(props.dev.name)}
-            style={{ backgroundColor: props.dev.color, color: props.dev.isWhiteText ? 'white' : 'black', cursor: 'pointer' }}
+            style={{ backgroundColor: props.dev.associatedBackgroundColor, color: props.dev.isWhiteForegroundColor ? 'white' : 'black', cursor: 'pointer' }}
             clickable={props.clickable}
-            onClick={props.clickable && props.onClick}
+            onClick={props.clickable ? props.onClick : undefined}
         />
 }

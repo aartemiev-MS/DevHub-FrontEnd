@@ -69,7 +69,7 @@ export default function TableContextMenu(props) {
         props.onHoldAction(props.contextMenuAnchor.taskId, props.contextMenuAnchor.isOnHold)
         handleClose()
     }
-    console.log(props)
+
     return (
         <StyledMenu
             id="customized-menu"

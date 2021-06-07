@@ -7,10 +7,14 @@ import { ApplicationPaths } from "./components/api-authorization/ApiAuthorizatio
 import ApiAuthorizationRoutes from "./components/api-authorization/ApiAuthorizationRoutes";
 import AuthorizeRoute from "./components/api-authorization/AuthorizeRoute";
 
+import { Provider } from "react-redux";
+import store from "./redux/store";
+
 function Dashboard() {
   return (
     <>
       <ControlPanel />
+
       <TasksTable />
     </>
   );
@@ -18,8 +22,9 @@ function Dashboard() {
 
 function App() {
   return (
-    <div className='App'>
-      <BrowserRouter>
+    <Provider store={store}>
+      <div className='App'>
+        {/* <BrowserRouter>
         <Route exact path='/'>
           Not logged in
         </Route>
@@ -28,9 +33,10 @@ function App() {
           path={ApplicationPaths.ApiAuthorizationPrefix}
           component={ApiAuthorizationRoutes}
         />
-      </BrowserRouter>
-      {/* <Dashboard /> */}
-    </div>
+      </BrowserRouter> */}
+        <Dashboard />
+      </div>
+    </Provider>
   );
 }
 

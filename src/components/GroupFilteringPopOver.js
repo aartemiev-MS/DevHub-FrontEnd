@@ -13,39 +13,43 @@ import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 
 import DevChip from './DevChip'
 
-export default function StatusFilteringPopOverButton(props) {
+export default function GroupFilteringPopOver(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
-    const [selectedIds, setSelectedIds] = React.useState(props.filterStatusIds);
+    const [selectedIds, setSelectedIds] = React.useState(props.filterGroupIds);
 
     const handleApply = e => {
-        props.setFilterStatusIds(selectedIds)
+        props.setFilterGroupIds(selectedIds)
         handleClose();
     }
     const handleClose = e => setAnchorEl(null);
     const handleIconClick = e => setAnchorEl(e.currentTarget)
     const handleRemoveAll = e => {
-        props.setFilterStatusIds([])
+        props.setFilterGroupIds([])
         handleClose();
     }
-    const handleChange = (statusId, isChecked) => {
-        let updatedStatusIds = Object.values({ ...selectedIds })
+    const handleChange = (groupId, isChecked) => {
+        let updatedSelectedIds = Object.values({ ...selectedIds })
 
         if (isChecked)
-            updatedStatusIds.push(statusId)
+            updatedSelectedIds.push(groupId)
         else
-            updatedStatusIds = updatedStatusIds.filter(id => id !== statusId)
+            updatedSelectedIds = updatedSelectedIds.filter(id => id !== groupId)
 
-        setSelectedIds(updatedStatusIds)
+        setSelectedIds(updatedSelectedIds)
     }
 
     const isOpen = Boolean(anchorEl);
+    const getCorrespondedTasksNumber = groupId => props.subGroupMode ?
+        props.tasksData.filter(task => task.taskSubGroupId === groupId).length :
+        props.tasksData.filter(task => task.taskGroupId === groupId).length
+
 
     return (
         <>
             <IconButton
                 className='filtering-header-icon'
                 onClick={handleIconClick}>
-                <FilterListIcon fontSize="small" color={props.filterStatusIds.length === 0 ? 'disabled' : 'primary'} />
+                <FilterListIcon fontSize="small" color={props.filterGroupIds.length === 0 ? 'disabled' : 'primary'} />
             </IconButton>
             <Popover
                 open={isOpen}
@@ -55,17 +59,17 @@ export default function StatusFilteringPopOverButton(props) {
                 transformOrigin={{ vertical: 'top', horizontal: 'left', }}
             >
                 <FormGroup>
-                    {props.statuses.map(status =>
+                    {props.taskGroups.map(group =>
                         <FormControlLabel
                             className='status-form-control'
                             control={<Checkbox
-                                checked={selectedIds.includes(status.id)}
-                                onChange={e => handleChange(status.id, e.target.checked)}
+                                checked={selectedIds.includes(group.id)}
+                                onChange={e => handleChange(group.id, e.target.checked)}
                                 color="primary"
-                                value={status.id}
+                                value={group.id}
                                 size='small'
                             />}
-                            label={`${status.statusName} (${props.tasksData.filter(task => task.status === status.id).length})`}
+                            label={`${group.name} (${getCorrespondedTasksNumber(group.id)})`}
                         />
                     )}
                 </FormGroup>

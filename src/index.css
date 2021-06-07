@@ -94,11 +94,12 @@ code {
   padding: 0 !important;
 }
 .cell-status {
-  padding: 6px 0 !important;
+  padding: 4px 0 !important;
   min-width: 200px;
   max-width: 200px;
 }
-.cell-status > div > div > div {
+.cell-status > div > div > div,
+.cell-task-sub-group > div > div > div > div {
   padding: 5px 32px 5px 14px;
 }
 .cell-action {
@@ -122,6 +123,7 @@ code {
   padding: 0 !important;
   background-color: white;
   z-index: 1;
+  white-space: nowrap;
 }
 .cell-task-group > div,
 .cell-task-sub-group > div,

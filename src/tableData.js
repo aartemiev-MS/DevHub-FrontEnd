@@ -1,6 +1,6 @@
 import { getMountData } from './backendRequests'
 
-const microServicesBranchData = [
+let microServicesBranchData = [
     {
         Id: '0',
         Megalfa: 'demo',
@@ -58,7 +58,7 @@ const microServicesBranchData = [
 
 ]
 
-const microServicesBranchDataEmpty = {
+let microServicesBranchDataEmpty = {
     Id: '3',
     Megalfa: 'demo',
     MegalfaHub: 'demo',
@@ -77,7 +77,7 @@ const microServicesBranchDataEmpty = {
     AOO: 'demo'
 }
 
-const statuses = [
+let statuses = [
     { name: 'Not yet started', id: 0, actions: ['Start (code)'] },
     { name: 'In development', id: 1, actions: ['Done (code)'] },
     { name: 'Completed by Dev', id: 3, actions: ['Start (test)'] },
@@ -87,17 +87,15 @@ const statuses = [
     { name: 'Deployed', id: 7, actions: [] },
 ]
 
-export function getDevs() {
-    return [
-        { id: 0, priority: 0, name: 'Sasha Artemiev', color: 'rgb(3, 86, 229)', isWhiteText: true },
-        { id: 1, priority: 1, name: 'Denis Lopatin', color: 'rgb(255, 251, 0)', isWhiteText: false },
-        { id: 2, priority: 2, name: 'Maxim Zelenko', color: 'rgb(3, 155, 229)', isWhiteText: true },
-        { id: 3, priority: 3, name: 'Kirill Stakhevych', color: 'rgb(121, 85, 72)', isWhiteText: true },
-        { id: 4, priority: 4, name: 'Yulia Chukhrii', color: 'rgb(97, 97, 97)', isWhiteText: true },
-    ]
-}
+let devsDemo = [
+    { id: 0, priority: 0, name: 'Sasha Artemiev', color: 'rgb(3, 86, 229)', isWhiteText: true },
+    { id: 1, priority: 1, name: 'Denis Lopatin', color: 'rgb(255, 251, 0)', isWhiteText: false },
+    { id: 2, priority: 2, name: 'Maxim Zelenko', color: 'rgb(3, 155, 229)', isWhiteText: true },
+    { id: 3, priority: 3, name: 'Kirill Stakhevych', color: 'rgb(121, 85, 72)', isWhiteText: true },
+    { id: 4, priority: 4, name: 'Yulia Chukhrii', color: 'rgb(97, 97, 97)', isWhiteText: true },
+]
 
-let demoData = [
+let tasksDataDemo = [
     {
         id: '0',
         taskName: 'Shipping bug',
@@ -210,14 +208,30 @@ let demoData = [
     }
 ]
 
+let devs = []
+let tasksData = []
+let taskGroups = []
+let taskSubGroups = []
 
-export default function tableDataSource() {
-    // getMountData().then(data => {
-    //     return data
-    // })
-    return demoData.sort((v1, v2) => v1.mainDev.priority - v2.mainDev.priority)
+
+export function getTasksData() {
+    return tasksData
+    if (tasksData.length === 0)
+        getMountData().then(data => {
+            devs = data.devs
+            tasksData = data.tasksData
+            taskGroups = data.taskGroups
+            taskSubGroups = data.taskSubGroups
+
+            return tasksData
+        })
+    else {
+        return tasksData
+    }
+    //  return demoData.sort((v1, v2) => v1.mainDev.priority - v2.mainDev.priority)
 }
 export function getStatuses() { return statuses }
+export function getDevs() { return [] }
 export function getEmptyTask(id, mainDev, newTaskGroup, newTaskSubGroup) {
     return {
         id: id,
@@ -240,3 +254,8 @@ export function getEmptyTask(id, mainDev, newTaskGroup, newTaskSubGroup) {
         microServicesBranchData: microServicesBranchDataEmpty
     }
 }
+
+export function getDevById(id) { return devs.find(dev => dev.Id === id) }
+export function getTaskById(id) { return tasksData.find(task => task.Id === id) }
+export function getTaskGroupById(id) { return taskGroups.find(taskGroup => taskGroup.Id === id) }
+export function getTaskSubGroupById(id) { return taskSubGroups.find(taskSubGroup => taskSubGroup.Id === id) }

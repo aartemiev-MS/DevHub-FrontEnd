@@ -9,34 +9,32 @@ import IconButton from '@material-ui/core/IconButton';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import DevChip from './DevChip'
 
-import tableDataSource, { getDevs } from '../tableData'
-
 export default function DevsChangingPopOver(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
-    const [selectedDevs, setSelectedDevs] = React.useState(props.taskCollaborators);
-
-    const devs = getDevs()
-    const tasks = tableDataSource()
+    const [selectedDevIds, setSelectedDevIds] = React.useState(props.taskCollaboratorIds);
 
     const handleApply = e => {
-        props.handleSaveDevs(selectedDevs)
+        props.handleSaveDevs(selectedDevIds, props.taskId)
         handleClose();
     }
     const handleClose = e => setAnchorEl(null);
     const handleIconClick = e => !props.readOnlyMode && setAnchorEl(e.currentTarget)
-    const handleChange = (dev, isChecked) => {
-        let updatedDevs = Object.values({ ...selectedDevs })
+    const handleChange = (devId, isChecked) => {
+        let updatedDevsIds = Object.values({ ...selectedDevIds })
 
         if (isChecked)
-            updatedDevs.push(dev)
+            updatedDevsIds.push(devId)
         else
-            updatedDevs = updatedDevs.filter(updatedDev => updatedDev.id !== dev.id)
+            updatedDevsIds = updatedDevsIds.filter(updatedDevId => updatedDevId !== devId)
 
-        setSelectedDevs(updatedDevs)
+        setSelectedDevIds(updatedDevsIds)
     }
 
     const isOpen = Boolean(anchorEl);
-    const devChips = props.taskCollaborators.length === 0 && !props.readOnlyMode ? <DevChip empty shortForm /> : props.taskCollaborators.map(dev => <DevChip dev={dev} shortForm />)
+
+    const devChips = props.taskCollaboratorIds.length === 0 && !props.readOnlyMode ?
+        <DevChip empty shortForm /> :
+        props.taskCollaboratorIds.map(id => <DevChip dev={props.devs.find(dev => dev.id === id)} shortForm />)
 
     return (
         <>
@@ -49,10 +47,10 @@ export default function DevsChangingPopOver(props) {
                 transformOrigin={{ vertical: 'top', horizontal: 'left', }}
             >
                 <FormGroup column className='dev-popover'>
-                    {devs.filter(dev => dev.id !== props.taskMainDevId).map(dev => <div>
+                    {props.devs.filter(dev => dev.id !== props.taskMainDevId).map(dev => <div>
                         <Checkbox
-                            checked={selectedDevs.some(selectedDev => selectedDev.id === dev.id)}
-                            onChange={e => handleChange(dev, e.target.checked)}
+                            checked={selectedDevIds.some(selectedDevId => selectedDevId === dev.id)}
+                            onChange={e => handleChange(dev.id, e.target.checked)}
                             color="primary"
                             value={dev.id}
                             size='small'

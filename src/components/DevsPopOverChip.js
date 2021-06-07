@@ -8,7 +8,7 @@ import Button from '@material-ui/core/Button';
 
 import DevChip from './DevChip'
 
-import tableDataSource from '../tableData'
+import { getTasksData } from '../tableData'
 
 const useStyles = makeStyles((theme) => ({
     typography: {
@@ -21,7 +21,7 @@ export default function DevsPopOverChip(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
 
     const devs = props.devsSource
-    const tasks = tableDataSource()
+    const tasks = getTasksData()
 
     const handlePopOverOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -66,7 +66,12 @@ export default function DevsPopOverChip(props) {
                 }}
             >
                 <FormGroup column className='dev-popover'>
-                    {devs.map(dev => <DevChip dev={dev} onClick={e => props.handleDevSelected(dev)} clickable />)}
+                    {devs.map(dev =>
+                        <DevChip
+                            dev={dev}
+                            onClick={e => props.handleDevSelected(dev.id, props.taskId)}
+                            clickable
+                        />)}
                 </FormGroup>
             </Popover>}
         </span>
