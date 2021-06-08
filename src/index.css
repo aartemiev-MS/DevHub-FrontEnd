@@ -93,10 +93,34 @@ code {
 .cell-task-info > .MuiIconButton-root {
   padding: 0 !important;
 }
+/* .task-row {
+  background-color: orange;
+} */
 .cell-status {
-  padding: 4px 0 !important;
-  min-width: 200px;
-  max-width: 200px;
+  padding: 0px 0 !important;
+  min-width: 80px;
+  max-width: 80px;
+
+}
+
+.status-container {
+  width: 70px; 
+  /* background-color: #4DDB98; */
+  /* background-color: transparent; */
+  /* border: 1px solid black; */
+  /* border-radius: 20px;
+  padding: 3px; */
+  font-size: 0.8rem;
+}
+.status-container > div {
+  height: unset;
+  line-height: 13px;
+}
+.status-chip > span {
+  max-width: 50px !important;
+  white-space: pre-wrap !important;
+  height: unset !important;
+  
 }
 .cell-status > div > div > div,
 .cell-task-sub-group > div > div > div > div {
@@ -177,6 +201,14 @@ code {
   max-width: 200px;
 }
 
+/* .MuiInputBase > .MuiSelect-select {
+  padding: 5px 32px 5px 14px !important;
+} */
+
+.MuiSelect-select.MuiSelect-select  {
+  padding: 5px 32px 5px 14px !important;
+}
+
 .MuiTableRow-head > .cell-main-dev-name > div > div {
   /* color: white !important; */
   max-width: 100px;
@@ -225,6 +257,9 @@ li.Mui-selected {
 
 .big-view-buttons-wrap {
   display: inline-block;
+  position: absolute;
+  left: 1200px;
+  top: 250px
 }
 .big-view-buttons-wrap > button {
   width: 50%;
