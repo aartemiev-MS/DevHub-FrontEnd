@@ -24,7 +24,7 @@ function App() {
   return (
     <Provider store={store}>
       <div className='App'>
-        {/* <BrowserRouter>
+        <BrowserRouter>
         <Route exact path='/'>
           Not logged in
         </Route>
@@ -33,8 +33,8 @@ function App() {
           path={ApplicationPaths.ApiAuthorizationPrefix}
           component={ApiAuthorizationRoutes}
         />
-      </BrowserRouter> */}
-        <Dashboard />
+      </BrowserRouter>
+        {/* <Dashboard /> */}
       </div>
     </Provider>
   );
