@@ -34,6 +34,7 @@ import difference from 'lodash/difference'
 import DateTimePicker from './DateTimePicker'
 import DevsFilteringPopOverButton from './DevsFilteringPopOverButton'
 import DevsPopOverChip from './DevsPopOverChip'
+import StatusChip from "./StatusChip"
 import TableContextMenu from './TableContextMenu'
 import TaskInfoModal from './TaskInfoModal'
 import DevsChangingPopOver from './DevsChangingPopOver'
@@ -79,6 +80,9 @@ export default function TasksTable(props) {
     const [readOnlyMode, setReadOnlyMode] = useState(true);
     const [showBranchesInfo, setShowBranchesInfo] = useState(false);
     const [showDatesInfo, setShowDatesInfo] = useState(false);
+
+    
+    const [groupUpdatingData, setGroupUpdatingData] = useState(null); // { taskId: xxx, mode:0 } if  sub - change group 
 
     const dispatch = useDispatch();
     const devs = useSelector((state) => state.dashboardReducer.devs)
@@ -404,6 +408,14 @@ export default function TasksTable(props) {
             updateTaskBackend(updatingTask)
         }
 
+        const handleOnChangeTaskGroup = (taskId, newGroupId) => {
+            let updateTask = tasksData.find(task => task.id === taskId)
+            updateTask.taskGroupId = newGroupId
+
+            dispatch(updateTasks([updateTask]))
+            updateTaskBackend(updateTask)
+        }
+
         const renderActionButtons = () => {
             const actions = statuses.find(status => status.id === props.task.status).actions
 
@@ -420,6 +432,9 @@ export default function TasksTable(props) {
         }
 
         const renderTaskSubGroupCell = () => {
+            if(groupUpdatingData&&groupUpdatingData.taskId===props.task.id && groupUpdatingData.mode===1){
+return //render text field
+            }else{
             if (readOnlyMode) {
                 if (props.task.taskSubGroupId)
                     return <div>
@@ -437,6 +452,7 @@ export default function TasksTable(props) {
                         handleOnChangeTaskGroup={handleOnChangeTaskSubGroup} />
                 </div>
             }
+        }
 
             return (<div>
                 {props.task.taskSubGroupId &&
@@ -445,6 +461,25 @@ export default function TasksTable(props) {
                         {taskSubGroups.find(group => group.id === props.task.taskSubGroupId).name}
                     </>}
             </div>)
+        }
+
+        const renderTaskGroupCell = () => {
+            if (readOnlyMode) {
+                if (props.task.taskGroupId)
+                    return <div>
+                            <RowHandler task={props.task} mode = {2}/>
+                            {taskGroups.find(group => group.id === props.task.taskGroupId).name}
+                           </div>
+            } else {
+                return <div>
+                    {props.task.taskGroupId ? <RowHandler task={props.task} mode={2} /> : <DragIndicatorIcon style={{ color: 'transparent' }} />}
+                    <TaskGroupSelect
+                        currentGroupId={props.task.taskGroupId}
+                        taskId={props.task.id}
+                        taskGroups={taskGroups}
+                        handleOnChangeTaskGroup={handleOnChangeTaskGroup} />
+                </div>
+            }    
         }
 
         const handleMainDevSelected = (newMainDevId, updatingTaskId) => {
@@ -523,6 +558,7 @@ export default function TasksTable(props) {
                     className='cell-task-group'
                     onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, true, false) }}>
                     <div>
+                        {renderTaskGroupCell()}
                         {props.task.taskGroupId &&
                             <>
                                 <RowHandler task={props.task} mode={1} />
@@ -553,13 +589,19 @@ export default function TasksTable(props) {
                     />
                 </TableCell>
                 <TableCell align='center' className='cell-status'>
-                    {readOnlyMode ?
+                    <div className="status-container">
+                    <Chip label={statuses[0].statusName} size='small' className="status-chip"/>
+                    {/* <StatusChip label = {statuses.statusName} /> */}
+
+                    {/* {readOnlyMode ?
                         statuses.find(status => status.id === props.task.status).statusName :
                         <StatusSelect
                             currentStatusId={props.task.status}
                             taskId={props.task.id}
                             statuses={statuses}
-                            handleOnChangeTaskStatus={handleOnChangeTaskStatus} />}
+                            handleOnChangeTaskStatus={handleOnChangeTaskStatus} />} */}
+                    </div>
+                            
                 </TableCell>
                 <TableCell align='center' className='cell-action' >
                     {renderActionButtons()}
@@ -732,7 +774,7 @@ export default function TasksTable(props) {
                                 </TableCell>
                                 <TableCell align='center' className='cell-status' >
                                     Status
-                                    <StatusFilteringPopOver
+                                    <StatusFilteringPopOver 
                                         filterStatusIds={filterStatusIds}
                                         setFilterStatusIds={setFilterStatusIds}
                                         tasksData={tasksData}
