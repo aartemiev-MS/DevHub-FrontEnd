@@ -114,7 +114,20 @@ export default function TableContextMenu(props) {
                     </ListItemIcon>
                     <ListItemText primary="Put on hold" />
                 </StyledMenuItem>
+                   
             }
+            <StyledMenuItem onClick={onClickOnHoldAction}> 
+                <ListItemIcon>
+                    <DeleteForeverIcon fontSize="medium" />
+                </ListItemIcon>
+                <ListItemText primary="Rename sub group" />
+            </StyledMenuItem>
+            <StyledMenuItem onClick={onClickOnHoldAction}> 
+                <ListItemIcon>
+                    <DeleteForeverIcon fontSize="medium" />
+                </ListItemIcon>
+                <ListItemText primary="Create new sub group" />
+            </StyledMenuItem>
         </StyledMenu>
     );
 }
