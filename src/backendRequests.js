@@ -75,3 +75,39 @@ export async function updateDateTimeBackend(taskId, newDateOffset, dateTypeIndex
 
     return resp
 }
+
+
+export async function addTaskGroupName() {
+    
+}
+
+
+export async function editTaskGroupName(editedTaskGroupId, newTaskGroupName) {
+    const request = {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(editedTaskGroupId, newTaskGroupName)
+    }
+
+    const response = await fetch("https://localhost:5001/Main/edit-taskGroup-name", request);
+    const responseResult = await response.json();
+
+    return responseResult;
+}
+
+export async function editTaskSubGroup(editedTaskSubGroupId) {
+    const request = {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(editedTaskSubGroupId)
+    }
+
+    const response = await fetch("https://localhost:5001/Main/edit-taskSubGroup-name", request);
+    const responseResult = await response.json();
+
+    return responseResult;
+}
