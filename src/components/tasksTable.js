@@ -55,6 +55,7 @@ import { SortableHandle } from "react-sortable-hoc";
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { setMountData, addTask, removeTask, updateTasks, updatePriorities } from '../redux/actions'
 import { getMountData, addTaskBackend, removeTaskBackend, updatePrioritiesBackend, updateTaskBackend, updateDateTimeBackend } from '../backendRequests'
+import StatusPopOverChip from './StatusPopOverChip';
 
 const useStyles = makeStyles({
     table: {
@@ -419,7 +420,7 @@ export default function TasksTable(props) {
         const renderActionButtons = () => {
             const actions = statuses.find(status => status.id === props.task.status).actions
 
-            return <ButtonGroup className='actions-button-group' variant="contained" size="small" color="primary">
+            return <ButtonGroup className='actions-button-group' variant="contained" size="small" color="secondary">
                 {actions.map(action => {
                     return <Button
                         onClick={e => handleActionButtonClick(props.task.id, action.nextStatus)}
@@ -432,8 +433,10 @@ export default function TasksTable(props) {
         }
 
         const renderTaskSubGroupCell = () => {
-            if(groupUpdatingData&&groupUpdatingData.taskId===props.task.id && groupUpdatingData.mode===1){
-return //render text field
+            if(groupUpdatingData && groupUpdatingData.taskId === props.task.id && groupUpdatingData.mode === 1){
+                return <div>
+                            <TextField/>
+                       </div>
             }else{
             if (readOnlyMode) {
                 if (props.task.taskSubGroupId)
@@ -464,7 +467,11 @@ return //render text field
         }
 
         const renderTaskGroupCell = () => {
-            if (readOnlyMode) {
+            if(groupUpdatingData && groupUpdatingData.taskId === props.task.id && groupUpdatingData.mode === 1){
+                return <div>
+                            <TextField/>
+                       </div>
+            } else if (readOnlyMode) {
                 if (props.task.taskGroupId)
                     return <div>
                             <RowHandler task={props.task} mode = {2}/>
@@ -495,6 +502,14 @@ return //render text field
             dispatch(updatePriorities(prioritiesShiftData))
             updateTaskBackend(updatingTask)
             updatePrioritiesBackend(prioritiesShiftData)
+        }
+
+        const handleStatusSelected = (statusId, updatingTaskId) => {
+            // debugger
+            let updatingTask = tasksData.find(task => task.id === updatingTaskId);     
+            updatingTask.status = statusId;
+            dispatch(updateTasks([updatingTask]));
+            updateTaskBackend(updatingTask);
         }
 
         const handleOnChangeTaskStatus = (updatingTaskId, newStatus) => {
@@ -539,6 +554,7 @@ return //render text field
         }
 
         console.log('SortableTableRowElement props:', props)
+        console.log(devs);
         return (
             <TableRow className={'task-row'} key={props.task.id} onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, false, false) }}>
                 <TableCell align='center' className='cell-dragger'><RowHandler task={props.task} mode={0} /></TableCell>
@@ -557,14 +573,14 @@ return //render text field
                 <TableCell
                     className='cell-task-group'
                     onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, true, false) }}>
-                    <div>
+                  
                         {renderTaskGroupCell()}
-                        {props.task.taskGroupId &&
+                        {/* {props.task.taskGroupId &&
                             <>
                                 <RowHandler task={props.task} mode={1} />
                                 {taskGroups.find(group => group.id === props.task.taskGroupId).name}
-                            </>}
-                    </div>
+                            </>} */}
+                   
                 </TableCell>
                 <TableCell
                     className='cell-task-sub-group'
@@ -590,7 +606,15 @@ return //render text field
                 </TableCell>
                 <TableCell align='center' className='cell-status'>
                     <div className="status-container">
-                    <Chip label={statuses[0].statusName} size='small' className="status-chip"/>
+                    {/* <Chip label={statuses[0].statusName} size='small' className="status-chip"/> */}
+                    <StatusPopOverChip className="status-chip"
+                        statusSource={statuses}
+                        handleStatusSelected={handleStatusSelected}
+                        taskId={props.task.id}
+                        statusId={props.task.status}
+                        //stat={statuses.find(s => s.id === props.task.status)}
+                    />
+
                     {/* <StatusChip label = {statuses.statusName} /> */}
 
                     {/* {readOnlyMode ?
@@ -607,7 +631,8 @@ return //render text field
                     {renderActionButtons()}
                 </TableCell>
                 <TableCell align='center' className={'cell-task-info' + (showDatesInfo || showBranchesInfo ? ' group-edge' : '')}>
-                    <Tooltip title={props.task.taskInfo} arrow interactive>
+                    {/* {props.task.description ? } */}
+                    <Tooltip title={props.task.description} arrow interactive>
                         <IconButton onClick={() => { openTaskInfo(props.task) }}>
                             <ImportContactsIcon fontSize="medium" color='primary' />
                         </IconButton>
@@ -838,6 +863,7 @@ return //render text field
                 removeRow={removeRow}
                 contextMenuAnchor={contextMenuAnchor}
                 setContextMenuAnchor={setContextMenuAnchor}
+
                 onHoldAction={handleOnHoldAction}
             />}
             {taskModal && <TaskInfoModal
