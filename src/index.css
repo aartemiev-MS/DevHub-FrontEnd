@@ -116,10 +116,16 @@ code {
   height: unset;
   line-height: 13px;
 }
+
+.status-chip {
+  padding: 0px;
+}
 .status-chip > span {
-  max-width: 50px !important;
+  max-width: 80px !important;
   white-space: pre-wrap !important;
   height: unset !important;
+  line-height: 13px;
+  text-overflow: unset;
   
 }
 .cell-status > div > div > div,
@@ -143,6 +149,7 @@ code {
 .cell-task-sub-group {
   min-width: 150px;
   max-width: 150px;
+  /* width: auto; */
   position: sticky;
   padding: 0 !important;
   background-color: white;
@@ -154,6 +161,8 @@ code {
 .cell-task-name > div {
   display: flex;
   line-height: 24px;
+  max-width: 150px;
+  font-size: 0.8rem;
 }
 .cell-task-group {
   left: 175px;
@@ -209,6 +218,10 @@ code {
   padding: 5px 32px 5px 14px !important;
 }
 
+.MuiSelect-selectMenu {
+  text-overflow: initial;
+}
+
 .MuiTableRow-head > .cell-main-dev-name > div > div {
   /* color: white !important; */
   max-width: 100px;
@@ -258,8 +271,8 @@ li.Mui-selected {
 .big-view-buttons-wrap {
   display: inline-block;
   position: absolute;
-  left: 1200px;
-  top: 250px
+  left: 250px;
+  top: 20px
 }
 .big-view-buttons-wrap > button {
   width: 50%;
@@ -289,6 +302,9 @@ li.Mui-selected {
 .MuiInputBase-root {
   font-size: unset !important;
 }
+/* .actions-button-group {
+  background-color: red;
+} */
 
 .active-drag-mode > tbody > .border-row > td > div {
   height: 10px;
@@ -377,3 +393,4 @@ li.Mui-selected {
 .actions-button-group > button > span {
   font-size: 10px;
 }
+
