@@ -1,6 +1,7 @@
 import React from 'react'
 import Chip from '@material-ui/core/Chip';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
+import StatusSelect from './StatusSelect';
 
 export default (props) => {
 
@@ -18,8 +19,8 @@ export default (props) => {
         /> :
         <Chip
             size="small"
-            label={props.shortForm ? getInitials_Short(props.dev.name) : getInitials_Long(props.dev.name)}
-            style={{ backgroundColor: props.dev.associatedBackgroundColor, color: props.dev.isWhiteForegroundColor ? 'white' : 'black', cursor: 'pointer' }}
+            label={props.statusId}
+            // style={{  }}
             clickable={props.clickable}
             onClick={props.clickable ? props.onClick : undefined}
         />
