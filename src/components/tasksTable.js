@@ -53,9 +53,11 @@ import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { SortableHandle } from "react-sortable-hoc";
 
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { setMountData, addTask, removeTask, updateTasks, updatePriorities } from '../redux/actions'
-import { getMountData, addTaskBackend, removeTaskBackend, updatePrioritiesBackend, updateTaskBackend, updateDateTimeBackend } from '../backendRequests'
+import { setMountData, addTask, removeTask, updateTasks, updatePriorities ,addTaskGroup,addTaskSubGroup,updateTaskGroupName,updateTaskSubGroupName,updateDragHandlerData} from '../redux/actions'
+import { getMountData, addTaskBackend, removeTaskBackend, updatePrioritiesBackend, updateTaskBackend, updateDateTimeBackend,addTaskGroupBackend,addTaskSubGroupBackend,editTaskGroupNameBackend,editTaskSubGroupNameBackend } from '../backendRequests'
 import StatusPopOverChip from './StatusPopOverChip';
+
+import { v4 as uuidv4 } from 'uuid';
 
 const useStyles = makeStyles({
     table: {
@@ -66,8 +68,6 @@ const useStyles = makeStyles({
 
 export default function TasksTable(props) {
     const [contextMenuAnchor, setContextMenuAnchor] = useState(null)
-    //const [tasksData, setTasksData] = useState(getTasksData())
-    const setTasksData = () => { }
     const [tableRowsData, setTableRowsData] = useState([])
     const [taskModal, setTaskModal] = useState(null)
 
@@ -81,7 +81,6 @@ export default function TasksTable(props) {
     const [readOnlyMode, setReadOnlyMode] = useState(true);
     const [showBranchesInfo, setShowBranchesInfo] = useState(false);
     const [showDatesInfo, setShowDatesInfo] = useState(false);
-
     
     const [groupUpdatingData, setGroupUpdatingData] = useState(null); // { taskId: xxx, mode:0 } if  sub - change group 
 
@@ -90,11 +89,54 @@ export default function TasksTable(props) {
     const tasksData = useSelector((state) => state.dashboardReducer.tasksData)
     const taskGroups = useSelector((state) => state.dashboardReducer.taskGroups)
     const taskSubGroups = useSelector((state) => state.dashboardReducer.taskSubGroups)
-    // const selectedData = useSelector(selectorReturningObject, shallowEqual)
+
+    let pressedKeys={shift:false, ctrl:false, alt:false}
 
     useEffect(() => {
         document.addEventListener("contextmenu", (event) => {
             event.preventDefault();
+        });
+
+        document.addEventListener("keydown", (event) => {
+            switch (event.key) {
+                case "Alt":
+                    event.preventDefault();
+                    pressedKeys.alt=true
+                    break;
+            
+                case "Shift":
+                    pressedKeys.shift=true
+                    break;
+            
+                case "Control":
+                    pressedKeys.ctrl=true
+                    break;
+                default:
+                    break;
+            }
+
+            console.log('keydown pressedKeys:',pressedKeys)
+        });
+
+        document.addEventListener("keyup", (event) => {
+            switch (event.key) {
+                case "Alt":
+                    event.preventDefault();
+                    pressedKeys.alt=false
+                    break;
+            
+                case "Shift":
+                    pressedKeys.shift=false
+                    break;
+            
+                case "Control":
+                    pressedKeys.ctrl=false
+                    break;
+                default:
+                    break;
+            }
+
+            console.log('keyup pressedKeys:',pressedKeys)
         });
 
         getMountData().then(data => dispatch(setMountData(data)))
@@ -103,7 +145,7 @@ export default function TasksTable(props) {
 
     useEffect(() => {
         console.log('tableData refreshed tasksData:', tasksData, '     getTableRowsData(tasksData):', getTableRowsData(tasksData))
-        setTableRowsData(getTableRowsData(tasksData))
+        filterTableData()
     }, [tasksData])
 
     useEffect(() => {
@@ -137,10 +179,9 @@ export default function TasksTable(props) {
     const setDragHandlerData = data => {
         const activeModeIsOff = document.getElementsByClassName('active-drag-mode').length === 0
 
-        if (activeModeIsOff)
-            window.dragHandlerData = data
+        if (activeModeIsOff && data!==props.dragHandlerData)
+        dispatch(updateDragHandlerData( data))
     }
-    const getDragHandlerData = () => window.dragHandlerData
 
     const classes = useStyles();
 
@@ -218,15 +259,57 @@ export default function TasksTable(props) {
         updateTaskBackend(updatingTask)
     }
 
+    const handleOnCreateNewGroupAction = (updatingTaskId) => {  
+                setGroupUpdatingData({ taskId: updatingTaskId, mode:0 })
+        const newTaskGroupId=uuidv4()
+        
+        let updatingTask = tasksData.find(task => task.id === updatingTaskId)
+        updatingTask.taskGroupId=newTaskGroupId 
+
+        dispatch(updateTasks([updatingTask]))
+        addTaskGroupBackend(newTaskGroupId)
+
+        dispatch(addTaskGroup(newTaskGroupId))
+        updateTaskBackend(updatingTask)
+    }
+
+    const handleOnCreateNewSubGroupAction = (updatingTaskId) => {  
+                setGroupUpdatingData({ taskId: updatingTaskId, mode:1 })
+        const newTaskSubGroupId=uuidv4()
+        
+        let updatingTask = tasksData.find(task => task.id === updatingTaskId)
+        updatingTask.taskSubGroupId=newTaskSubGroupId 
+        
+        dispatch(updateTasks([updatingTask]))
+        addTaskSubGroupBackend(newTaskSubGroupId,updatingTask.taskGroupId)
+
+        dispatch(addTaskSubGroup(newTaskSubGroupId,updatingTask.taskGroupId))
+        updateTaskBackend(updatingTask)
+    }
+
+    const handleOnRenameGroupAction=renamingGroupTaskId=>{
+        setGroupUpdatingData({ taskId: renamingGroupTaskId, mode:0 })
+    }
+
+    const handleOnRenameSubGroupAction=renamingSubGroupTaskId=>{
+        setGroupUpdatingData({ taskId: renamingSubGroupTaskId, mode:1 })
+    }
+
     const SortableCont = SortableContainer(({ children }) => {
         return <tbody>{children}</tbody>;
     });
+
+    const dragHelperContainer=()=>{
+        let taskProps = {task:props.dragHandlerData.task}
+        let aaa = SortableTableRowElement(taskProps)
+        
+        return <div>SASHA</div>
+    }
 
     const onSortStart = ({ node, index, collection, isKeySorting }) => {
         getTableDOM().classList.add("active-drag-mode")
 
         let dragAffectedRowIndexes = getDragAffectedRowIndexes()
-        console.log('onSortStart dragAffectedRowIndexes:', dragAffectedRowIndexes)
 
         getCurrentRowsDOM().forEach((row, index) => {
             if (dragAffectedRowIndexes.includes(index)) row.classList.add("active-drag-mode-row")
@@ -251,14 +334,14 @@ export default function TasksTable(props) {
         if (shadowsClass) getMainActiveRowDOM().classList.add(shadowsClass) //set new one if need
     }
 
-    const onSortEnd = useCallback(({ oldIndex: oldRowIndex, newIndex: newRowIndex }) => {
-        if (oldRowIndex !== newRowIndex) {
-            const oldTableRowsData = window.dragHandlerData.tableRowsData
+    const onSortEnd = ({ oldIndex: oldRowIndex, newIndex: newRowIndex }) => {
+            const oldTableRowsData = tableRowsData
+            const oldPriorities =tasksData.map(task=>{return{taskId:task.id,newPriorityIndex:task.priorityForDeveloper}})
             const dragAffectedTasks = getDragAffectedRowIndexes().map(index => oldTableRowsData[index])
-
+            
             let originalIndexOfReplacingRow
             let newMainDevId
-            let prevTaskPriority
+            let newFirstTaskPriority
             let rowsToUpdate = []
 
             if (oldRowIndex < newRowIndex) {
@@ -266,55 +349,107 @@ export default function TasksTable(props) {
             } else
                 originalIndexOfReplacingRow = newRowIndex
 
-
-            if (originalIndexOfReplacingRow === oldTableRowsData.length) {
+            if (originalIndexOfReplacingRow === oldTableRowsData.length) { // case when we insert at the very bottom of table
                 if (oldTableRowsData[originalIndexOfReplacingRow - 1].isBorder) {
                     newMainDevId = oldTableRowsData[originalIndexOfReplacingRow - 1].nextDev.id
-                    prevTaskPriority = 0
+                    newFirstTaskPriority = 0
 
                 } else {
                     newMainDevId = oldTableRowsData[originalIndexOfReplacingRow - 1].mainDevId
-                    prevTaskPriority = oldTableRowsData[originalIndexOfReplacingRow - 1].PriorityForDeveloper + 1
+                    newFirstTaskPriority = oldTableRowsData[originalIndexOfReplacingRow - 1].priorityForDeveloper + 1
                 }
 
-            } else if (oldTableRowsData[originalIndexOfReplacingRow].isBorder) {
+            } else if (oldTableRowsData[originalIndexOfReplacingRow].isBorder) { // case when we replaced the border
                 newMainDevId = oldTableRowsData[originalIndexOfReplacingRow].prevDev.id
-                prevTaskPriority = 0
+
+                let currentEntryPoint
+                if (oldTableRowsData[originalIndexOfReplacingRow].isBorder){
+                    currentEntryPoint = oldTableRowsData.filter(task=>task.mainDevId===newMainDevId).length
+                } else {
+                    currentEntryPoint = oldTableRowsData[originalIndexOfReplacingRow].priorityForDeveloper
+                }
+                const notAffectedTasksBeforeEntryPoint=oldTableRowsData.filter(task=>task.mainDevId===newMainDevId && task.priorityForDeveloper<=currentEntryPoint) //finish
+
+                newFirstTaskPriority = notAffectedTasksBeforeEntryPoint.length
 
             } else {
                 newMainDevId = oldTableRowsData[originalIndexOfReplacingRow].mainDevId
-                prevTaskPriority = oldTableRowsData[originalIndexOfReplacingRow].PriorityForDeveloper
+
+                const currentEntryPoint =oldTableRowsData[originalIndexOfReplacingRow].priorityForDeveloper
+                const affectedTasksBeforeEntryPoint=dragAffectedTasks.filter(task=>task.mainDevId===newMainDevId && task.priorityForDeveloper<=currentEntryPoint).length
+
+                newFirstTaskPriority = currentEntryPoint - affectedTasksBeforeEntryPoint
             }
 
-            dragAffectedTasks.forEach(task => {
+            const isNotAllDevTasksToTheSameDev = !(props.dragHandlerData.mode==0 &&newMainDevId===dragAffectedTasks[0].mainDevId) // we eliminate attemptions to assign [All dev tasks] to the same developer
+
+            if (oldRowIndex !== newRowIndex && isNotAllDevTasksToTheSameDev) {            
+
+            dragAffectedTasks.forEach((task,i) => {
                 if (newMainDevId !== task.mainDevId) {
                     task.mainDevId = newMainDevId
+                    task.collaboratorsIds = task.collaboratorsIds.filter(collaboratorId=>collaboratorId!==newMainDevId)
+                    
                     rowsToUpdate.push(task)
                 }
+                
+                task.priorityForDeveloper = i + newFirstTaskPriority
+            })
+            
+            // priorities management
+
+            let affectedTaskIds=dragAffectedTasks.map(task=>task.id)
+            let notAffectedTasks=tasksData.filter(row=>!affectedTaskIds.includes(row.id))
+
+            devs.forEach(dev => {
+                let thisDevTasks=notAffectedTasks.filter(task=>task.mainDevId===dev.id).sort((task1,task2)=>task1.priorityForDeveloper-task2.priorityForDeveloper)                
+                thisDevTasks.forEach((task,i)=>{
+                    if (dev.id===newMainDevId && i >= newFirstTaskPriority){
+                        task.priorityForDeveloper=i+dragAffectedTasks.length
+                    } else {
+                        task.priorityForDeveloper=i
+                    }
+                })
+            });
+                                    
+            const newPriorities=[...notAffectedTasks,...dragAffectedTasks].map(task=>{ return {taskId:task.id,newPriorityIndex:task.priorityForDeveloper}})
+            const updatedPriorities=newPriorities.filter(newPriority=>{
+                const oldCorrespondantPriority=oldPriorities.find(oldPriority=>oldPriority.taskId===newPriority.taskId)
+
+                return newPriority.newPriorityIndex!==oldCorrespondantPriority.newPriorityIndex
             })
 
-            dispatch(updateTasks(rowsToUpdate))
+            //debugger
+
+            dispatch(updatePriorities(updatedPriorities))
+            updatePrioritiesBackend(updatedPriorities)
+
+            if (rowsToUpdate.length>0) {
+                dispatch(updateTasks(rowsToUpdate))
+                rowsToUpdate.forEach(updatingTask => updateTaskBackend(updatingTask))
+            }
+            
         } else {
             getTableDOM().classList.remove("active-drag-mode")
             getCurrentRowsDOM().forEach(row => row.classList.remove('active-drag-mode-row'))
         }
-    }, []);
+    }
 
     const getDragAffectedRowIndexes = () => {
-        const tableRowsDataSource = tableRowsData.length > 0 ? tableRowsData : getDragHandlerData().tableRowsData
+        const tableRowsDataSource = tableRowsData
 
-        switch (getDragHandlerData().mode) {
+        switch (props.dragHandlerData.mode) {
             case 0:
-                return tableRowsDataSource.map((row, i) => !row.isBorder && row.mainDevId === getDragHandlerData().task.mainDevId ? i : null).filter(index => index !== null) //with out !== null it ignores [0]
+                return tableRowsDataSource.map((row, i) => !row.isBorder && row.mainDevId === props.dragHandlerData.task.mainDevId ? i : null).filter(index => index !== null) //with out !== null it ignores [0]
 
             case 1:
-                return tableRowsDataSource.map((row, i) => !row.isBorder && row.taskGroupId === getDragHandlerData().task.taskGroupId ? i : null).filter(index => index !== null) //with out !== null it ignores [0]
+                return tableRowsDataSource.map((row, i) => !row.isBorder && row.taskGroupId === props.dragHandlerData.task.taskGroupId ? i : null).filter(index => index !== null) //with out !== null it ignores [0]
 
             case 2:
-                return tableRowsDataSource.map((row, i) => !row.isBorder && row.taskSubGroupId === getDragHandlerData().task.taskSubGroupId ? i : null).filter(index => index !== null) //with out !== null it ignores [0]
+                return tableRowsDataSource.map((row, i) => !row.isBorder && row.taskSubGroupId === props.dragHandlerData.task.taskSubGroupId ? i : null).filter(index => index !== null) //with out !== null it ignores [0]
 
             case 3:
-                return tableRowsDataSource.map((row, i) => !row.isBorder && row.id === getDragHandlerData().task.id ? i : null).filter(index => index !== null) //with out !== null it ignores [0]
+                return tableRowsDataSource.map((row, i) => !row.isBorder && row.id === props.dragHandlerData.task.id ? i : null).filter(index => index !== null) //with out !== null it ignores [0]
         }
     }
 
@@ -325,16 +460,8 @@ export default function TasksTable(props) {
     const getTableRowsData = (tasksData) => {
         let newTableRowsData = []
 
-        const sortedTableData = tasksData.sort((taskA, taskB) => {
-            if (taskA.mainDevId === taskB.mainDevId) {
-                return taskA.priorityForDeveloper < taskB.priorityForDeveloper ? -1 : 1
-            } else {
-                return devs.find(d => d.id === taskA.mainDevId).PriorityAmongDevelopers < devs.find(d => d.id === taskB.mainDevId).PriorityAmongDevelopers ? -1 : 1
-            }
-        })
-
         devs.forEach((dev, index) => {
-            const devTasks = sortedTableData.filter(task => task.mainDevId === dev.id)
+            const devTasks = tasksData.filter(task => task.mainDevId === dev.id).sort((task1,task2)=>task1.priorityForDeveloper-task2.priorityForDeveloper)
 
             devTasks.forEach(task => newTableRowsData.push(task))
 
@@ -350,14 +477,14 @@ export default function TasksTable(props) {
     }
     const getTaskById = id => tasksData.find(task => task.id === id)
 
-    const onMouseEnterDragHandler = (task, mode) => setDragHandlerData({ task: task, mode: mode, tableRowsData: tableRowsData })
+    const onMouseMoveDragHandler = (task, mode) => setDragHandlerData({ task: task, mode: mode })
 
     const SortableTableRow = SortableElement(props => props.isBorder ? <SortableTableBorderRowElement {...props} /> : <SortableTableRowElement {...props} />);
 
-    const RowHandler = SortableHandle(props => <DragIndicatorIcon onMouseEnter={e => onMouseEnterDragHandler(props.task, props.mode)} style={{ cursor: 'grab' }} />);
+    const RowHandler = SortableHandle(props => <DragIndicatorIcon 
+        onMouseMove ={e => onMouseMoveDragHandler(props.task, props.mode)}         style={{ cursor: 'grab' }}          />);
 
     const SortableTableRowElement = props => {
-
 
         const handleSaveDevs = (newCollaboratorIds, updatingTaskId) => {
             let updatingTask = tasksData.find(task => task.id === updatingTaskId)
@@ -417,10 +544,22 @@ export default function TasksTable(props) {
             updateTaskBackend(updateTask)
         }
 
+        const handleOnBlurTaskGroupName=(newTaskGroupName,taskGroupId)=>{
+            dispatch(updateTaskGroupName(newTaskGroupName,taskGroupId))
+            setGroupUpdatingData(null)
+            editTaskGroupNameBackend(newTaskGroupName,taskGroupId)
+        }
+
+        const handleOnBlurTaskSubGroupName=(newTaskSubGroupName,taskSubGroupId)=>{
+                    dispatch(updateTaskSubGroupName(newTaskSubGroupName,taskSubGroupId))
+            setGroupUpdatingData(null)
+            editTaskSubGroupNameBackend(newTaskSubGroupName,taskSubGroupId)
+        }
+
         const renderActionButtons = () => {
             const actions = statuses.find(status => status.id === props.task.status).actions
 
-            return <ButtonGroup className='actions-button-group' variant="contained" size="small" color="secondary">
+            return <ButtonGroup className='actions-button-group' variant="contained" size="small">
                 {actions.map(action => {
                     return <Button
                         onClick={e => handleActionButtonClick(props.task.id, action.nextStatus)}
@@ -435,7 +574,9 @@ export default function TasksTable(props) {
         const renderTaskSubGroupCell = () => {
             if(groupUpdatingData && groupUpdatingData.taskId === props.task.id && groupUpdatingData.mode === 1){
                 return <div>
-                            <TextField/>
+                            <TextField 
+                            defaultValue={taskSubGroups.find(group => group.id === props.task.taskSubGroupId).name}
+                            onBlur={e=>handleOnBlurTaskSubGroupName(e.target.value,props.task.taskSubGroupId)}/>
                        </div>
             }else{
             if (readOnlyMode) {
@@ -467,19 +608,21 @@ export default function TasksTable(props) {
         }
 
         const renderTaskGroupCell = () => {
-            if(groupUpdatingData && groupUpdatingData.taskId === props.task.id && groupUpdatingData.mode === 1){
+            if(groupUpdatingData && groupUpdatingData.taskId === props.task.id && groupUpdatingData.mode === 0){
                 return <div>
-                            <TextField/>
+                            <TextField 
+                            defaultValue={taskGroups.find(group => group.id === props.task.taskGroupId).name}
+                            onBlur={e=>handleOnBlurTaskGroupName(e.target.value,props.task.taskGroupId)}/>
                        </div>
             } else if (readOnlyMode) {
                 if (props.task.taskGroupId)
                     return <div>
-                            <RowHandler task={props.task} mode = {2}/>
+                            <RowHandler task={props.task} mode = {1}/>
                             {taskGroups.find(group => group.id === props.task.taskGroupId).name}
                            </div>
             } else {
                 return <div>
-                    {props.task.taskGroupId ? <RowHandler task={props.task} mode={2} /> : <DragIndicatorIcon style={{ color: 'transparent' }} />}
+                    {props.task.taskGroupId ? <RowHandler task={props.task} mode={1} /> : <DragIndicatorIcon style={{ color: 'transparent' }} />}
                     <TaskGroupSelect
                         currentGroupId={props.task.taskGroupId}
                         taskId={props.task.id}
@@ -505,19 +648,10 @@ export default function TasksTable(props) {
         }
 
         const handleStatusSelected = (statusId, updatingTaskId) => {
-            // debugger
             let updatingTask = tasksData.find(task => task.id === updatingTaskId);     
             updatingTask.status = statusId;
             dispatch(updateTasks([updatingTask]));
             updateTaskBackend(updatingTask);
-        }
-
-        const handleOnChangeTaskStatus = (updatingTaskId, newStatus) => {
-            let updatingTask = tasksData.find(task => task.id === updatingTaskId)
-            updatingTask.status = newStatus
-
-            dispatch(updateTasks([updatingTask]))
-            updateTaskBackend(updatingTask)
         }
 
         const handleOnBlurTaskName = (newTaskName, updatingTaskId) => {
@@ -553,8 +687,7 @@ export default function TasksTable(props) {
             dispatch(updateTasks([updatingTask]))
         }
 
-        console.log('SortableTableRowElement props:', props)
-        console.log(devs);
+       // console.log('SortableTableRowElement props:', props)
         return (
             <TableRow className={'task-row'} key={props.task.id} onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, false, false) }}>
                 <TableCell align='center' className='cell-dragger'><RowHandler task={props.task} mode={0} /></TableCell>
@@ -573,14 +706,7 @@ export default function TasksTable(props) {
                 <TableCell
                     className='cell-task-group'
                     onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, true, false) }}>
-                  
-                        {renderTaskGroupCell()}
-                        {/* {props.task.taskGroupId &&
-                            <>
-                                <RowHandler task={props.task} mode={1} />
-                                {taskGroups.find(group => group.id === props.task.taskGroupId).name}
-                            </>} */}
-                   
+                                          {renderTaskGroupCell()}                   
                 </TableCell>
                 <TableCell
                     className='cell-task-sub-group'
@@ -605,33 +731,19 @@ export default function TasksTable(props) {
                     />
                 </TableCell>
                 <TableCell align='center' className='cell-status'>
-                    <div className="status-container">
-                    {/* <Chip label={statuses[0].statusName} size='small' className="status-chip"/> */}
                     <StatusPopOverChip className="status-chip"
+                        readOnlyMode={readOnlyMode}
                         statusSource={statuses}
                         handleStatusSelected={handleStatusSelected}
                         taskId={props.task.id}
                         statusId={props.task.status}
-                        //stat={statuses.find(s => s.id === props.task.status)}
                     />
-
-                    {/* <StatusChip label = {statuses.statusName} /> */}
-
-                    {/* {readOnlyMode ?
-                        statuses.find(status => status.id === props.task.status).statusName :
-                        <StatusSelect
-                            currentStatusId={props.task.status}
-                            taskId={props.task.id}
-                            statuses={statuses}
-                            handleOnChangeTaskStatus={handleOnChangeTaskStatus} />} */}
-                    </div>
                             
                 </TableCell>
                 <TableCell align='center' className='cell-action' >
                     {renderActionButtons()}
                 </TableCell>
                 <TableCell align='center' className={'cell-task-info' + (showDatesInfo || showBranchesInfo ? ' group-edge' : '')}>
-                    {/* {props.task.description ? } */}
                     <Tooltip title={props.task.description} arrow interactive>
                         <IconButton onClick={() => { openTaskInfo(props.task) }}>
                             <ImportContactsIcon fontSize="medium" color='primary' />
@@ -742,6 +854,7 @@ export default function TasksTable(props) {
                     axis="y"
                     lockAxis="y"
                     useDragHandle
+                   // helperContainer={dragHelperContainer}
                     helperClass='active-drag-mode-row-main active-drag-mode-row'
                 >
                     <Table className={classes.table} size="small" id='tasks-table'>
@@ -853,7 +966,7 @@ export default function TasksTable(props) {
             </TableContainer>
             {(!showDatesInfo && !showBranchesInfo) &&
                 <div className='big-view-buttons-wrap'>
-                    <div>You can select one of the following views to show more data.</div>
+                    <div>Select views to show more data:</div>
                     <IconButton onClick={handleBranchesInfoChange} ><AccountTreeIcon color='primary' />Git section</IconButton>
                     <IconButton onClick={handleDatesInfoChange}><EventAvailableIcon color='primary' />Dates section</IconButton>
                 </div>
@@ -863,8 +976,13 @@ export default function TasksTable(props) {
                 removeRow={removeRow}
                 contextMenuAnchor={contextMenuAnchor}
                 setContextMenuAnchor={setContextMenuAnchor}
+                readOnlyMode={readOnlyMode}
 
                 onHoldAction={handleOnHoldAction}
+                handleOnCreateNewGroupAction={handleOnCreateNewGroupAction}
+                handleOnCreateNewSubGroupAction={handleOnCreateNewSubGroupAction}
+                handleOnRenameGroupAction={handleOnRenameGroupAction}
+                handleOnRenameSubGroupAction={handleOnRenameSubGroupAction}
             />}
             {taskModal && <TaskInfoModal
                 taskModal={taskModal}

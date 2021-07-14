@@ -1,10 +1,14 @@
 import {
-    SASHA_TEST,
     UPDATE_TASKS,
     SET_MOUNT_DATA,
     ADD_TASK,
     REMOVE_TASK,
-    UPDATE_PRIORITIES
+    UPDATE_PRIORITIES,
+    ADD_TASK_GROUP,
+    UPDATE_TASK_GROUP_NAME,
+    UPDATE_TASK_SUB_GROUP_NAME,
+    ADD_TASK_SUB_GROUP,
+    UPDATE_DRAG_HANDLER_DATA
 } from "../actions";
 
 const initialState = {
@@ -12,11 +16,12 @@ const initialState = {
     devs: [],
     tasksData: [],
     taskGroups: [],
-    taskSubGroups: []
+    taskSubGroups: [],
+    dragHandlerData:null
 };
 
 export default function (state = initialState, action) {
-    let newTasksData
+    let newTasksData, newTaskGroups,newTaskSubGroups
     switch (action.type) {
         case SET_MOUNT_DATA: {
             return {
@@ -55,6 +60,39 @@ export default function (state = initialState, action) {
             return {
                 ...state,
                 tasksData: newTasksData
+            };
+        case ADD_TASK_GROUP:
+             newTaskGroups=state.taskGroups
+            newTaskGroups.push({id:action.newTaskGroupId,name:""})
+            return {
+                ...state,
+                taskGroups: newTaskGroups
+            };
+        case ADD_TASK_SUB_GROUP:
+             newTaskSubGroups=state.taskSubGroups
+            newTaskSubGroups.push({id:action.newTaskSubGroupId,name:"",taskGroupId:action.taskGroupId})
+            return {
+                ...state,
+                taskSubGroups: newTaskSubGroups
+            };
+        case UPDATE_TASK_GROUP_NAME:
+             newTaskGroups=state.taskGroups
+            newTaskGroups.find(group=>group.id===action.taskGroupId).name=action.newName
+            return {
+                ...state,
+                taskGroups: newTaskGroups
+            };
+        case UPDATE_TASK_SUB_GROUP_NAME:
+                 newTaskSubGroups=state.taskSubGroups
+            newTaskSubGroups.find(group=>group.id===action.taskSubGroupId).name=action.newName
+            return {
+                ...state,
+                taskSubGroups: newTaskSubGroups
+            };
+        case UPDATE_DRAG_HANDLER_DATA:
+            return {
+                ...state,
+                dragHandlerData: action.newData
             };
         default:
             return state;

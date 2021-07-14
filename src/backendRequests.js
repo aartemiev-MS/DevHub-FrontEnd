@@ -76,37 +76,61 @@ export async function updateDateTimeBackend(taskId, newDateOffset, dateTypeIndex
     return resp
 }
 
-
-export async function addTaskGroupName() {
-    
-}
-
-
-export async function editTaskGroupName(editedTaskGroupId, newTaskGroupName) {
+export async function editTaskGroupNameBackend( newTaskGroupName,editedTaskGroupId) {
     const request = {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(editedTaskGroupId, newTaskGroupName)
+        body: JSON.stringify({taskGroupId:editedTaskGroupId, newName:newTaskGroupName})
     }
 
-    const response = await fetch("https://localhost:5001/Main/edit-taskGroup-name", request);
+    const response = await fetch("https://localhost:5001/Main/edit-task-group-name", request);
     const responseResult = await response.json();
 
     return responseResult;
 }
 
-export async function editTaskSubGroup(editedTaskSubGroupId) {
+export async function editTaskSubGroupNameBackend(newTaskSubGroupName,editedTaskSubGroupId) {
     const request = {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(editedTaskSubGroupId)
+        body: JSON.stringify({taskSubGroupId:editedTaskSubGroupId, newName:newTaskSubGroupName})
     }
 
-    const response = await fetch("https://localhost:5001/Main/edit-taskSubGroup-name", request);
+    const response = await fetch("https://localhost:5001/Main/edit-task-sub-group-name", request);
+    const responseResult = await response.json();
+
+    return responseResult;
+}
+
+export async function addTaskGroupBackend(newTaskGroupId) {
+    const request = {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newTaskGroupId)
+    }
+
+    const response = await fetch("https://localhost:5001/Main/add-task-group", request);
+    const responseResult = await response.json();
+
+    return responseResult;
+}
+
+export async function addTaskSubGroupBackend(newTaskSubGroupId,taskGroupId) {
+    const request = {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({newTaskSubGroupId:newTaskSubGroupId,taskGroupId:taskGroupId})
+    }
+
+    const response = await fetch("https://localhost:5001/Main/add-task-sub-group", request);
     const responseResult = await response.json();
 
     return responseResult;

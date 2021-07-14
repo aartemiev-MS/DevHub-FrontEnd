@@ -82,6 +82,26 @@ export default function TableContextMenu(props) {
     handleClose();
   };
 
+  const handleOnCreateNewGroupAction=()=>{
+props.handleOnCreateNewGroupAction(  props.contextMenuAnchor.taskId)
+handleClose();
+  };
+
+  const handleOnCreateNewSubGroupAction=()=>{
+props.handleOnCreateNewSubGroupAction(  props.contextMenuAnchor.taskId)
+handleClose();
+  };
+
+  const handleOnRenameGroupAction=()=>{
+props.handleOnRenameGroupAction(  props.contextMenuAnchor.taskId)
+handleClose();
+  };
+
+  const handleOnRenameSubGroupAction=()=>{
+props.handleOnRenameSubGroupAction(  props.contextMenuAnchor.taskId)
+handleClose();
+  };
+
   return (
     <StyledMenu
       id="customized-menu"
@@ -137,34 +157,35 @@ export default function TableContextMenu(props) {
       )}
 
      
-        {/* {props.taskGroupId ? } */}
-        <StyledMenuItem onClick={onClickOnHoldAction}>
+        {!props.readOnlyMode&&
+        [<StyledMenuItem onClick={handleOnCreateNewGroupAction}>
           <ListItemIcon>
             <DeleteForeverIcon fontSize="medium" />
           </ListItemIcon>
           <ListItemText primary="Сreate new group" />
-        </StyledMenuItem>
-        <StyledMenuItem onClick={onClickOnHoldAction}>
+        </StyledMenuItem>,
+
+        <StyledMenuItem onClick={handleOnRenameGroupAction}>
           <ListItemIcon>
             <DeleteForeverIcon fontSize="medium" />
           </ListItemIcon>
           <ListItemText primary="Rename group" />
-        </StyledMenuItem>
+        </StyledMenuItem>,      
       
-      
-      <StyledMenuItem onClick={onClickOnHoldAction}>
+      <StyledMenuItem onClick={handleOnCreateNewSubGroupAction}>
         <ListItemIcon>
           <DeleteForeverIcon fontSize="medium" />
         </ListItemIcon>
         <ListItemText primary="Сreate new sub group" />
-      </StyledMenuItem>
-      <StyledMenuItem onClick={onClickOnHoldAction}>
+      </StyledMenuItem>,
+
+      <StyledMenuItem onClick={handleOnRenameSubGroupAction}>
         <ListItemIcon>
           <DeleteForeverIcon fontSize="medium" />
         </ListItemIcon>
         <ListItemText primary="Rename sub group" />
       </StyledMenuItem>
-
+        ]}
     </StyledMenu>
   );
 }

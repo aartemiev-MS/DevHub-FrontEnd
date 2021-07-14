@@ -70,7 +70,6 @@ export default function TaskInfoModal(props) {
         props.saveTask(updatedTask)
         handleClose()
     }
-    console.log('TaskInfoModal props:', props)
     return (
         <Modal
             className={classes.modal}

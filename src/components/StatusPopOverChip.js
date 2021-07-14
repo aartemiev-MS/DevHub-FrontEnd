@@ -28,23 +28,15 @@ export default function StatusPopOverChip(props) {
 
   const isOpen = Boolean(anchorEl);
 
-  console.log(props.statusId, statuses, statuses.find(s => {
-    const debug = s.id === props.statusId;
-    // debugger
-    return s.id === props.statusId;
-  }));
-
   return (
     <span>
       <Chip
         label={statuses.find(s => s.id === props.statusId) ? statuses.find(s => s.id === props.statusId).statusName : "not found"}
-        // label={statuses[0].statusName}
         size="small"
         className="status-chip"
         onClick={handlePopOverOpen}
-        //stat={props.stat}
       />
-      {!props.readOnly && (
+      {!props.readOnlyMode && (
         <Popover
           open={isOpen}
           anchorEl={anchorEl}

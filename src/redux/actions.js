@@ -7,6 +7,11 @@ export const SET_MOUNT_DATA = 'SET_MOUNT_DATA'
 export const ADD_TASK = 'ADD_TASK'
 export const REMOVE_TASK = 'REMOVE_TASK'
 export const UPDATE_PRIORITIES = 'UPDATE_PRIORITIES'
+export const UPDATE_TASK_GROUP_NAME = 'UPDATE_TASK_GROUP_NAME'
+export const UPDATE_TASK_SUB_GROUP_NAME = 'UPDATE_TASK_SUB_GROUP_NAME'
+export const ADD_TASK_GROUP = 'ADD_TASK_GROUP'
+export const ADD_TASK_SUB_GROUP = 'ADD_TASK_SUB_GROUP'
+export const UPDATE_DRAG_HANDLER_DATA = 'UPDATE_DRAG_HANDLER_DATA'
 
 export const updateTasks = updatedTasks => ({
     type: UPDATE_TASKS,
@@ -36,4 +41,32 @@ export const setMountData = mountData => ({
     tasksData: mountData.tasksData,
     taskGroups: mountData.taskGroups,
     taskSubGroups: mountData.taskSubGroups,
+})
+
+export const addTaskGroup = newTaskGroupId => ({
+    type: ADD_TASK_GROUP,
+    newTaskGroupId: newTaskGroupId
+})
+
+export const addTaskSubGroup = (newTaskSubGroupId,taskGroupId) => ({
+    type: ADD_TASK_SUB_GROUP,
+    newTaskSubGroupId: newTaskSubGroupId,
+    taskGroupId:taskGroupId
+})
+
+export const updateTaskGroupName = (newName,taskGroupId) => ({
+    type: UPDATE_TASK_GROUP_NAME,
+    taskGroupId: taskGroupId,
+    newName:newName
+})
+
+export const updateTaskSubGroupName = (newName,taskSubGroupId) => ({
+    type: UPDATE_TASK_SUB_GROUP_NAME,
+    taskSubGroupId: taskSubGroupId,
+    newName:newName
+})
+
+export const updateDragHandlerData = (newData) => ({
+    type: UPDATE_DRAG_HANDLER_DATA,
+    newData: newData
 })

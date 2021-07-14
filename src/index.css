@@ -84,6 +84,8 @@ code {
   max-width: 30px;
   padding: 5px 0 !important;
   left: 145px;
+  background-color: white;
+  z-index: 1;
 }
 .cell-task-info {
   min-width: 35px;
@@ -117,9 +119,6 @@ code {
   line-height: 13px;
 }
 
-.status-chip {
-  padding: 0px;
-}
 .status-chip > span {
   max-width: 80px !important;
   white-space: pre-wrap !important;
@@ -135,6 +134,7 @@ code {
 .cell-action {
   min-width: 120px;
   max-width: 120px;
+  padding:0 !important;
 }
 .cell-action > button {
   padding: 3px 10px !important;
@@ -269,13 +269,17 @@ li.Mui-selected {
 }
 
 .big-view-buttons-wrap {
-  display: inline-block;
-  position: absolute;
-  left: 250px;
-  top: 20px
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  align-items: stretch;
+  padding: 15px;
+   right: 120px;
+   top: 200px;
+  border: 1.5px solid black;
+  border-radius: 20px;
 }
 .big-view-buttons-wrap > button {
-  width: 50%;
 }
 .big-view-buttons-wrap > button > span > svg {
   margin-right: 5px;

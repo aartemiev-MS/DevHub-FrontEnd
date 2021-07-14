@@ -23,7 +23,6 @@ export default function DevsFilteringPopOverButton(props) {
     const [selectedIds, setSelectedIds] = React.useState(props.filterDevIds);
 
     const handleApply = e => {
-        console.log('applied filter ids:', selectedIds)
         props.setFilterDevIds(selectedIds)
         handleClose();
     }
