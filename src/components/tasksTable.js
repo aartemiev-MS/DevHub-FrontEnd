@@ -90,8 +90,6 @@ export default function TasksTable(props) {
     const taskGroups = useSelector((state) => state.dashboardReducer.taskGroups)
     const taskSubGroups = useSelector((state) => state.dashboardReducer.taskSubGroups)
 
-    let pressedKeys={shift:false, ctrl:false, alt:false}
-
     useEffect(() => {
         document.addEventListener("contextmenu", (event) => {
             event.preventDefault();
@@ -101,43 +99,41 @@ export default function TasksTable(props) {
             switch (event.key) {
                 case "Alt":
                     event.preventDefault();
-                    pressedKeys.alt=true
+                    document.pressedKeys.alt=true
                     break;
             
                 case "Shift":
-                    pressedKeys.shift=true
+                    document.pressedKeys.shift=true
                     break;
             
                 case "Control":
-                    pressedKeys.ctrl=true
+                    document.pressedKeys.ctrl=true
                     break;
                 default:
                     break;
             }
-
-            console.log('keydown pressedKeys:',pressedKeys)
         });
 
         document.addEventListener("keyup", (event) => {
             switch (event.key) {
                 case "Alt":
                     event.preventDefault();
-                    pressedKeys.alt=false
+                    document.pressedKeys.alt=false
                     break;
             
                 case "Shift":
-                    pressedKeys.shift=false
+                    document.pressedKeys.shift=false
                     break;
             
                 case "Control":
-                    pressedKeys.ctrl=false
+                    document.pressedKeys.ctrl=false
                     break;
                 default:
                     break;
             }
-
-            console.log('keyup pressedKeys:',pressedKeys)
         });
+
+        document.pressedKeys={shift:false, ctrl:false, alt:false}
 
         getMountData().then(data => dispatch(setMountData(data)))
 
@@ -336,49 +332,59 @@ export default function TasksTable(props) {
 
     const onSortEnd = ({ oldIndex: oldRowIndex, newIndex: newRowIndex }) => {
             const oldTableRowsData = tableRowsData
-            const oldPriorities =tasksData.map(task=>{return{taskId:task.id,newPriorityIndex:task.priorityForDeveloper}})
+            const oldPriorities = tasksData.map(task=>{return{taskId:task.id,newPriorityIndex:task.priorityForDeveloper}})
             const dragAffectedTasks = getDragAffectedRowIndexes().map(index => oldTableRowsData[index])
             
             let originalIndexOfReplacingRow
             let newMainDevId
             let newFirstTaskPriority
             let rowsToUpdate = []
+            let taskToCopyFields
 
             if (oldRowIndex < newRowIndex) {
                 originalIndexOfReplacingRow = newRowIndex + 1
             } else
                 originalIndexOfReplacingRow = newRowIndex
-
+            
             if (originalIndexOfReplacingRow === oldTableRowsData.length) { // case when we insert at the very bottom of table
                 if (oldTableRowsData[originalIndexOfReplacingRow - 1].isBorder) {
                     newMainDevId = oldTableRowsData[originalIndexOfReplacingRow - 1].nextDev.id
                     newFirstTaskPriority = 0
+                    taskToCopyFields=null
 
                 } else {
                     newMainDevId = oldTableRowsData[originalIndexOfReplacingRow - 1].mainDevId
                     newFirstTaskPriority = oldTableRowsData[originalIndexOfReplacingRow - 1].priorityForDeveloper + 1
+                    taskToCopyFields=oldTableRowsData[originalIndexOfReplacingRow - 1]
                 }
 
             } else if (oldTableRowsData[originalIndexOfReplacingRow].isBorder) { // case when we replaced the border
                 newMainDevId = oldTableRowsData[originalIndexOfReplacingRow].prevDev.id
 
-                let currentEntryPoint
-                if (oldTableRowsData[originalIndexOfReplacingRow].isBorder){
-                    currentEntryPoint = oldTableRowsData.filter(task=>task.mainDevId===newMainDevId).length
-                } else {
-                    currentEntryPoint = oldTableRowsData[originalIndexOfReplacingRow].priorityForDeveloper
-                }
+                let currentEntryPoint = oldTableRowsData.filter(task=>task.mainDevId===newMainDevId).length
                 const notAffectedTasksBeforeEntryPoint=oldTableRowsData.filter(task=>task.mainDevId===newMainDevId && task.priorityForDeveloper<=currentEntryPoint) //finish
 
                 newFirstTaskPriority = notAffectedTasksBeforeEntryPoint.length
 
-            } else {
+                if(originalIndexOfReplacingRow===0 || oldTableRowsData[originalIndexOfReplacingRow-1].isBorder){
+                    taskToCopyFields=null
+                } else {
+                    taskToCopyFields=oldTableRowsData[originalIndexOfReplacingRow-1]
+                }
+
+            } else { // case when we replaced a regular task
                 newMainDevId = oldTableRowsData[originalIndexOfReplacingRow].mainDevId
 
                 const currentEntryPoint =oldTableRowsData[originalIndexOfReplacingRow].priorityForDeveloper
                 const affectedTasksBeforeEntryPoint=dragAffectedTasks.filter(task=>task.mainDevId===newMainDevId && task.priorityForDeveloper<=currentEntryPoint).length
 
                 newFirstTaskPriority = currentEntryPoint - affectedTasksBeforeEntryPoint
+
+                if(originalIndexOfReplacingRow!==0 && !oldTableRowsData[originalIndexOfReplacingRow-1].isBorder){
+                    taskToCopyFields = oldTableRowsData[originalIndexOfReplacingRow-1]
+                } else {
+                    taskToCopyFields = oldTableRowsData[originalIndexOfReplacingRow]
+                }
             }
 
             const isNotAllDevTasksToTheSameDev = !(props.dragHandlerData.mode==0 &&newMainDevId===dragAffectedTasks[0].mainDevId) // we eliminate attemptions to assign [All dev tasks] to the same developer
@@ -386,12 +392,34 @@ export default function TasksTable(props) {
             if (oldRowIndex !== newRowIndex && isNotAllDevTasksToTheSameDev) {            
 
             dragAffectedTasks.forEach((task,i) => {
+                let taskFieldsUpdated=false
+
                 if (newMainDevId !== task.mainDevId) {
                     task.mainDevId = newMainDevId
                     task.collaboratorsIds = task.collaboratorsIds.filter(collaboratorId=>collaboratorId!==newMainDevId)
                     
-                    rowsToUpdate.push(task)
+                    taskFieldsUpdated = true
                 }
+
+                if(taskToCopyFields && document.pressedKeys.ctrl){
+                        switch (props.dragHandlerData.mode) {
+                            case 1: //group dragging
+                                task.taskGroupId=taskToCopyFields.taskGroupId
+                                break;
+                            case 2: //sub group dragging
+                                task.taskGroupId=taskToCopyFields.taskGroupId
+                                task.taskSubGroupId=taskToCopyFields.taskSubGroupId
+                                break;
+                            case 3: //single task dragging
+                                task.taskGroupId=taskToCopyFields.taskGroupId
+                                task.taskSubGroupId=taskToCopyFields.taskSubGroupId
+                                break;
+                        }                        
+                        taskFieldsUpdated = true
+                }
+
+
+              if (taskFieldsUpdated)  rowsToUpdate.push(task)
                 
                 task.priorityForDeveloper = i + newFirstTaskPriority
             })
@@ -998,10 +1026,12 @@ const statuses = [
     { statusName: 'Not yet started', id: 0, actions: [{ actionName: 'Start (code)', nextStatus: 1 }] },
     { statusName: 'In development', id: 1, actions: [{ actionName: 'Done (code)', nextStatus: 2 }] },
     { statusName: 'Completed by Dev', id: 2, actions: [{ actionName: 'Start (test)', nextStatus: 3 }] },
-    { statusName: 'QA Testing', id: 3, actions: [{ actionName: 'Pass', nextStatus: 5 }, { actionName: 'Fail', nextStatus: 4 }] },
-    { statusName: 'Bug Fixing', id: 4, actions: [{ actionName: 'Done (bugfix)', nextStatus: 3 }] },
-    { statusName: 'Ready to deploy', id: 5, actions: [{ actionName: 'Deploy', nextStatus: 6 }] },
-    { statusName: 'Deployed', id: 6, actions: [] },
+    { statusName: 'QA Testing', id: 3, actions: [{ actionName: 'Pass', nextStatus: 6 }, { actionName: 'Fail', nextStatus: 4 }] },
+    { statusName: 'Test Failed', id: 4, actions: [{ actionName: 'Start (code)', nextStatus: 1 }] },
+    { statusName: 'Bug Fixing', id: 5, actions: [{ actionName: 'Done (bugfix)', nextStatus: 3 }] },
+    { statusName: 'Ready to deploy', id: 6, actions: [{ actionName: 'Deploy to Demo', nextStatus: 7 }] },
+    { statusName: 'Deployed To Demo', id: 7, actions: [{ actionName: 'Deploy to Live', nextStatus: 8 }] },
+    { statusName: 'Deployed To Live', id: 8, actions: [] },
 ]
 
 function getEmptyTask(id, mainDevId, priorityForDeveloper, newTaskGroupId, newTaskSubGroupId) {

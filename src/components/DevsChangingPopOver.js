@@ -36,7 +36,7 @@ export default function DevsChangingPopOver(props) {
     
     const devChips = props.taskCollaboratorIds.length === 0 && !props.readOnlyMode ?
         <DevChip empty shortForm /> :
-        props.taskCollaboratorIds.sort((devId1,devId2)=> getDevById(devId1).priorityAmongDevelopers > getDevById(devId2).priorityAmongDevelopers).map(id => <DevChip dev={getDevById(id)} shortForm />)
+        props.taskCollaboratorIds.sort((devId1,devId2)=> getDevById(devId1).priorityAmongDevelopers > getDevById(devId2).priorityAmongDevelopers).map(id => <DevChip dev={getDevById(id)} shortForm shining/>)
 
     return (
         <>

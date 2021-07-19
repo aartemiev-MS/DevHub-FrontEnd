@@ -24,7 +24,6 @@ function Dashboard() {
 }
 
 function App() {
-  console.log('ApplicationPaths.LogOut:',ApplicationPaths.LogOut)
   return (
     <Provider store={store}>
       <div className='App'>
