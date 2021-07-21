@@ -102,11 +102,10 @@ code {
   padding: 0px 0 !important;
   min-width: 80px;
   max-width: 80px;
-
 }
 
 .status-container {
-  width: 70px; 
+  width: 70px;
   /* background-color: #4DDB98; */
   /* background-color: transparent; */
   /* border: 1px solid black; */
@@ -125,7 +124,6 @@ code {
   height: unset !important;
   line-height: 13px;
   text-overflow: unset;
-  
 }
 .cell-status > div > div > div,
 .cell-task-sub-group > div > div > div > div {
@@ -134,7 +132,7 @@ code {
 .cell-action {
   min-width: 120px;
   max-width: 120px;
-  padding:0 !important;
+  padding: 0 !important;
 }
 .cell-action > button {
   padding: 3px 10px !important;
@@ -214,7 +212,7 @@ code {
   padding: 5px 32px 5px 14px !important;
 } */
 
-.MuiSelect-select.MuiSelect-select  {
+.MuiSelect-select.MuiSelect-select {
   padding: 5px 32px 5px 14px !important;
 }
 
@@ -274,8 +272,8 @@ li.Mui-selected {
   position: fixed;
   align-items: stretch;
   padding: 15px;
-   right: 120px;
-   top: 200px;
+  right: 120px;
+  top: 200px;
   border: 1.5px solid black;
   border-radius: 20px;
 }
@@ -396,4 +394,8 @@ li.Mui-selected {
 
 .actions-button-group > button > span {
   font-size: 10px;
+}
+
+.hidden-item {
+  visibility: hidden;
 }

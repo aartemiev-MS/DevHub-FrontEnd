@@ -47,7 +47,7 @@ export default function GroupFilteringPopOver(props) {
     return (
         <>
             <IconButton
-                className='filtering-header-icon'
+                className={props.hidden ? 'filtering-header-icon hidden-item' : 'filtering-header-icon'}
                 onClick={handleIconClick}>
                 <FilterListIcon fontSize="small" color={props.filterGroupIds.length === 0 ? 'disabled' : 'primary'} />
             </IconButton>

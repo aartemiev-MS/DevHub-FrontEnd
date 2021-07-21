@@ -21,9 +21,12 @@ export const LoginActions = {
 
 const prefix = "/authentication";
 
+const backendURL = "https://api.magnificentsystems.app"
+//const backendURL ="https://localhost:5001"
+
 export const ApplicationPaths = {
   DefaultLoginRedirectPath: "/",
-  ApiAuthorizationClientConfigurationUrl: `https://localhost:5001/_configuration/${ApplicationName}`,
+  ApiAuthorizationClientConfigurationUrl: `${backendURL}/_configuration/${ApplicationName}`,
   ApiAuthorizationPrefix: prefix,
   Login: `${prefix}/${LoginActions.Login}`,
   LoginFailed: `${prefix}/${LoginActions.LoginFailed}`,
@@ -33,6 +36,6 @@ export const ApplicationPaths = {
   LogOut: `${prefix}/${LogoutActions.Logout}`,
   LoggedOut: `${prefix}/${LogoutActions.LoggedOut}`,
   LogOutCallback: `${prefix}/${LogoutActions.LogoutCallback}`,
-  IdentityRegisterPath: "`https://localhost:5001/Identity/Account/Register",
-  IdentityManagePath: "`https://localhost:5001/Identity/Account/Manage",
+  IdentityRegisterPath: `${backendURL}/Identity/Account/Register`,
+  IdentityManagePath: `${backendURL}/Identity/Account/Manage`,
 };

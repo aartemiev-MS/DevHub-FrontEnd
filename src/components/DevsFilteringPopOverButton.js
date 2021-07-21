@@ -47,7 +47,7 @@ export default function DevsFilteringPopOverButton(props) {
     return (
         <>
             <IconButton
-                className='filtering-header-icon'
+                className={props.hidden ? 'filtering-header-icon hidden-item' : 'filtering-header-icon'}
                 onClick={handleIconClick}>
                 <FilterListIcon fontSize="small" color={props.filterDevIds.length === 0 ? 'disabled' : 'primary'} />
             </IconButton>
