@@ -1,11 +1,10 @@
 import React from "react";
+
 import { makeStyles } from "@material-ui/core/styles";
 import Popover from "@material-ui/core/Popover";
 import FormGroup from "@material-ui/core/FormGroup";
-import StatusChip from "./StatusChip";
-import Chip from "@material-ui/core/Chip";
-
-import { getTasksData } from "../tableData";
+import Tooltip from '@material-ui/core/Tooltip';
+import MenuItem from '@material-ui/core/MenuItem';
 
 const useStyles = makeStyles((theme) => ({
   typography: {
@@ -27,15 +26,13 @@ export default function StatusPopOverChip(props) {
   };
 
   const isOpen = Boolean(anchorEl);
+  const currentStatus = statuses.find(s => s.id === props.statusId)
 
   return (
-    <span>
-      <Chip
-        label={statuses.find(s => s.id === props.statusId) ? statuses.find(s => s.id === props.statusId).statusName : "not found"}
-        size="small"
-        className="status-chip"
-        onClick={handlePopOverOpen}
-      />
+    <>
+      <Tooltip title={currentStatus.statusName} arrow interactive>
+        <img className="status-item-icon" alt="" src={currentStatus.icon} onClick={handlePopOverOpen} />
+      </Tooltip>
       {!props.readOnlyMode && (
         <Popover
           open={isOpen}
@@ -47,24 +44,20 @@ export default function StatusPopOverChip(props) {
           }}
           transformOrigin={{
             vertical: "top",
-            horizontal: "center",
+            horizontal: "left",
           }}
         >
-          <FormGroup column className="status-popover">
+          <FormGroup column>
             {statuses.filter(s => s.id !== props.taskId).map((status) => (
-              <Chip
-                size="small"
-                stat={status}
-                label={status.statusName}
-                onClick={e =>
-                  props.handleStatusSelected(status.id, props.taskId)
-                }
-                clickable
-              />
+              <MenuItem
+                onClick={e => props.handleStatusSelected(status.id, props.taskId)}>
+                <img className="status-item-icon" alt="" src={status.icon} />
+                <span className="status-item-name">{status.statusName}</span>
+              </MenuItem>
             ))}
           </FormGroup>
         </Popover>
       )}
-    </span>
+    </>
   );
 }

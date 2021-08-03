@@ -399,3 +399,12 @@ li.Mui-selected {
 .hidden-item {
   visibility: hidden;
 }
+
+.status-item-name {
+  line-height: 35px;
+  margin-left: 10px;
+}
+
+.status-item-icon {
+  height: 30px;
+}

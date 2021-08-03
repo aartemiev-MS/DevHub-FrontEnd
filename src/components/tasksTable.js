@@ -59,6 +59,16 @@ import { setMountData, addTask, removeTask, updateTasks, updatePriorities, addTa
 import { getMountData, addTaskBackend, removeTaskBackend, updatePrioritiesBackend, updateTaskBackend, updateDateTimeBackend, addTaskGroupBackend, addTaskSubGroupBackend, editTaskGroupNameBackend, editTaskSubGroupNameBackend } from '../backendRequests'
 import StatusPopOverChip from './StatusPopOverChip';
 
+import notStarted from "../assets/icons/Not started.svg"
+import inDevelopment from "../assets/icons/In development.svg"
+import completed from "../assets/icons/Completed.svg"
+import qaTesting from "../assets/icons/qa testing.svg"
+import testFailed from "../assets/icons/test failed.svg"
+import bugFixing from "../assets/icons/bug fixing.svg"
+import readyToDeploy from "../assets/icons/ready to deploy.svg"
+import deployedToDemo from "../assets/icons/demo.svg"
+import deployedToLive from "../assets/icons/live.svg"
+
 import { v4 as uuidv4 } from 'uuid';
 
 const useStyles = makeStyles({
@@ -147,7 +157,10 @@ export default function TasksTable(props) {
 
         document.pressedKeys = { shift: false, ctrl: false, alt: false }
 
-        getMountData().then(data => dispatch(setMountData(data)))
+        getMountData().then(data => {
+            console.log('mount data:', data)
+            dispatch(setMountData(data))
+        })
 
     }, [])
 
@@ -1150,15 +1163,15 @@ export default function TasksTable(props) {
 }
 
 const statuses = [
-    { statusName: 'Not yet started', id: 0, actions: [{ actionName: 'Start (code)', nextStatus: 1 }] },
-    { statusName: 'In development', id: 1, actions: [{ actionName: 'Done (code)', nextStatus: 2 }] },
-    { statusName: 'Completed by Dev', id: 2, actions: [{ actionName: 'Start (test)', nextStatus: 3 }] },
-    { statusName: 'QA Testing', id: 3, actions: [{ actionName: 'Pass', nextStatus: 6 }, { actionName: 'Fail', nextStatus: 4 }] },
-    { statusName: 'Test Failed', id: 4, actions: [{ actionName: 'Start (code)', nextStatus: 1 }] },
-    { statusName: 'Bug Fixing', id: 5, actions: [{ actionName: 'Done (bugfix)', nextStatus: 3 }] },
-    { statusName: 'Ready to deploy', id: 6, actions: [{ actionName: 'Deploy to Demo', nextStatus: 7 }] },
-    { statusName: 'Deployed To Demo', id: 7, actions: [{ actionName: 'Deploy to Live', nextStatus: 8 }] },
-    { statusName: 'Deployed To Live', id: 8, actions: [] },
+    { statusName: 'Not yet started', id: 0, icon: notStarted, actions: [{ actionName: 'Start (code)', nextStatus: 1 }] },
+    { statusName: 'In development', id: 1, icon: inDevelopment, actions: [{ actionName: 'Done (code)', nextStatus: 2 }] },
+    { statusName: 'Completed by Dev', id: 2, icon: completed, actions: [{ actionName: 'Start (test)', nextStatus: 3 }] },
+    { statusName: 'QA Testing', id: 3, icon: qaTesting, actions: [{ actionName: 'Pass', nextStatus: 6 }, { actionName: 'Fail', nextStatus: 4 }] },
+    { statusName: 'Test Failed', id: 4, icon: testFailed, actions: [{ actionName: 'Start (code)', nextStatus: 1 }] },
+    { statusName: 'Bug Fixing', id: 5, icon: bugFixing, actions: [{ actionName: 'Done (bugfix)', nextStatus: 3 }] },
+    { statusName: 'Ready to deploy', id: 6, icon: readyToDeploy, actions: [{ actionName: 'Deploy to Demo', nextStatus: 7 }] },
+    { statusName: 'Deployed To Demo', id: 7, icon: deployedToDemo, actions: [{ actionName: 'Deploy to Live', nextStatus: 8 }] },
+    { statusName: 'Deployed To Live', id: 8, icon: deployedToLive, actions: [] },
 ]
 
 function getEmptyTask(id, mainDevId, priorityForDeveloper, newTaskGroupId, newTaskSubGroupId) {

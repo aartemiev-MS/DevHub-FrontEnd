@@ -22,7 +22,7 @@ export const LoginActions = {
 const prefix = "/authentication";
 
 const backendURL = "https://api.magnificentsystems.app"
-//const backendURL ="https://localhost:5001"
+//const backendURL = "https://localhost:5001"
 
 export const ApplicationPaths = {
   DefaultLoginRedirectPath: "/",

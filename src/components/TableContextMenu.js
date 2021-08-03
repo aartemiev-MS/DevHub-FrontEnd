@@ -13,6 +13,11 @@ import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import PauseCircleFilledIcon from "@material-ui/icons/PauseCircleFilled";
 import PlayCircleFilledIcon from "@material-ui/icons/PlayCircleFilled";
 
+import createNewSubGroupIcon from "../assets/icons/subgroup create.svg"
+import createNewGroupIcon from "../assets/icons/group create.svg"
+import renameSubGroupIcon from "../assets/icons/subgroup edit.svg"
+import renameGroupIcon from "../assets/icons/group edit.svg"
+
 const StyledMenu = withStyles({
   paper: {
     border: "1px solid #d3d4d5",
@@ -82,24 +87,24 @@ export default function TableContextMenu(props) {
     handleClose();
   };
 
-  const handleOnCreateNewGroupAction=()=>{
-props.handleOnCreateNewGroupAction(  props.contextMenuAnchor.taskId)
-handleClose();
+  const handleOnCreateNewGroupAction = () => {
+    props.handleOnCreateNewGroupAction(props.contextMenuAnchor.taskId)
+    handleClose();
   };
 
-  const handleOnCreateNewSubGroupAction=()=>{
-props.handleOnCreateNewSubGroupAction(  props.contextMenuAnchor.taskId)
-handleClose();
+  const handleOnCreateNewSubGroupAction = () => {
+    props.handleOnCreateNewSubGroupAction(props.contextMenuAnchor.taskId)
+    handleClose();
   };
 
-  const handleOnRenameGroupAction=()=>{
-props.handleOnRenameGroupAction(  props.contextMenuAnchor.taskId)
-handleClose();
+  const handleOnRenameGroupAction = () => {
+    props.handleOnRenameGroupAction(props.contextMenuAnchor.taskId)
+    handleClose();
   };
 
-  const handleOnRenameSubGroupAction=()=>{
-props.handleOnRenameSubGroupAction(  props.contextMenuAnchor.taskId)
-handleClose();
+  const handleOnRenameSubGroupAction = () => {
+    props.handleOnRenameSubGroupAction(props.contextMenuAnchor.taskId)
+    handleClose();
   };
 
   return (
@@ -156,35 +161,35 @@ handleClose();
         </StyledMenuItem>
       )}
 
-     
-        {!props.readOnlyMode&&
+
+      {!props.readOnlyMode &&
         [<StyledMenuItem onClick={handleOnCreateNewGroupAction}>
           <ListItemIcon>
-            <DeleteForeverIcon fontSize="medium" />
+            <img src={createNewGroupIcon} alt="" />
           </ListItemIcon>
           <ListItemText primary="Сreate new group" />
         </StyledMenuItem>,
 
+        <StyledMenuItem onClick={handleOnCreateNewSubGroupAction}>
+          <ListItemIcon>
+            <img src={createNewSubGroupIcon} alt="" />
+          </ListItemIcon>
+          <ListItemText primary="Сreate new sub group" />
+        </StyledMenuItem>,
+
         <StyledMenuItem onClick={handleOnRenameGroupAction}>
           <ListItemIcon>
-            <DeleteForeverIcon fontSize="medium" />
+            <img src={renameGroupIcon} alt="" />
           </ListItemIcon>
           <ListItemText primary="Rename group" />
-        </StyledMenuItem>,      
-      
-      <StyledMenuItem onClick={handleOnCreateNewSubGroupAction}>
-        <ListItemIcon>
-          <DeleteForeverIcon fontSize="medium" />
-        </ListItemIcon>
-        <ListItemText primary="Сreate new sub group" />
-      </StyledMenuItem>,
+        </StyledMenuItem>,
 
-      <StyledMenuItem onClick={handleOnRenameSubGroupAction}>
-        <ListItemIcon>
-          <DeleteForeverIcon fontSize="medium" />
-        </ListItemIcon>
-        <ListItemText primary="Rename sub group" />
-      </StyledMenuItem>
+        <StyledMenuItem onClick={handleOnRenameSubGroupAction}>
+          <ListItemIcon>
+            <img src={renameSubGroupIcon} alt="" />
+          </ListItemIcon>
+          <ListItemText primary="Rename sub group" />
+        </StyledMenuItem>
         ]}
     </StyledMenu>
   );
