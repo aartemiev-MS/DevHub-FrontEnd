@@ -7,7 +7,8 @@ import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import IconButton from '@material-ui/core/IconButton';
 import FilterListIcon from '@material-ui/icons/FilterList';
-import DevChip from './DevChip'
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import Tooltip from '@material-ui/core/Tooltip';
 
 export default function DevsChangingPopOver(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -19,13 +20,14 @@ export default function DevsChangingPopOver(props) {
     }
     const handleClose = e => setAnchorEl(null);
     const handleIconClick = e => !props.readOnlyMode && setAnchorEl(e.currentTarget)
-    const handleChange = (devId, isChecked) => {
+    const handleChange = (devId) => {
+        const isCurrentlyChecked = selectedDevIds.some(id=>id===devId)
         let updatedDevsIds = Object.values({ ...selectedDevIds })
 
-        if (isChecked)
-            updatedDevsIds.push(devId)
-        else
+        if (isCurrentlyChecked)
             updatedDevsIds = updatedDevsIds.filter(updatedDevId => updatedDevId !== devId)
+        else
+            updatedDevsIds.push(devId)
 
         setSelectedDevIds(updatedDevsIds)
     }
@@ -33,14 +35,57 @@ export default function DevsChangingPopOver(props) {
     const isOpen = Boolean(anchorEl);
 
     const getDevById = id => props.devs.find(dev => dev.id === id)
-    
-    const devChips = props.taskCollaboratorIds.length === 0 && !props.readOnlyMode ?
-        <DevChip empty shortForm /> :
-        props.taskCollaboratorIds.sort((devId1,devId2)=> getDevById(devId1).priorityAmongDevelopers > getDevById(devId2).priorityAmongDevelopers).map(id => <DevChip dev={getDevById(id)} shortForm shining/>)
+    const getInitials_Short = name => name.split(' ').map(word => word.charAt(0)).join('')
+    const getInitials_Long = name => name.split(' ')[0] + ' ' + name.split(' ').splice(1).map(word => word.charAt(0) + '.').join(' ')
+
+    const collaboratorButton =(devId,longStyle,onClickFunction,tooltipRequired)=>{
+        const dev=getDevById(devId)
+        const emptyButton=!!(!dev)
+        
+        const getDevName=()=>{
+            return longStyle?getInitials_Long(dev.name):getInitials_Short(dev.name)
+        }
+
+        if(emptyButton){
+            return <Tooltip title={"Add a collaborator"} arrow interactive>
+            <Button
+                    className='collaborator-button collaborator-button-empty'
+                    startIcon={<AddCircleIcon />}>
+                    </Button>
+                    </Tooltip>
+        }else{
+            if(tooltipRequired){
+                return <Tooltip title={dev.name} arrow interactive>
+                <Button
+                className='collaborator-button'
+                onClick={onClickFunction}
+                style={{backgroundColor:dev.associatedBackgroundColor, color:dev.isWhiteForegroundColor?'white':'black'}}>
+                       {getDevName()}
+                </Button>
+                </Tooltip> 
+            } else {
+                return <Button
+                className='collaborator-button'
+                onClick={onClickFunction}
+                style={{backgroundColor:dev.associatedBackgroundColor, color:dev.isWhiteForegroundColor?'white':'black'}}>
+                       {getDevName()}
+                </Button>
+            }
+        }
+    }
+
+    const getDevButtons =()=>{
+         if(props.taskCollaboratorIds.length === 0 && !props.readOnlyMode){
+            return collaboratorButton(null) 
+         } else {
+            const sortedCollaboratorIds= props.taskCollaboratorIds.sort((devId1,devId2)=> getDevById(devId1).priorityAmongDevelopers > getDevById(devId2).priorityAmongDevelopers)
+            return sortedCollaboratorIds.map(id => collaboratorButton(id,false,null,true)) 
+    }
+}
 
     return (
         <>
-            <IconButton className='dev-chips-group' onClick={handleIconClick}>{devChips}</IconButton>
+            <IconButton className='dev-chips-group' onClick={handleIconClick}>{getDevButtons()}</IconButton>
             <Popover
                 open={isOpen}
                 anchorEl={anchorEl}
@@ -49,15 +94,15 @@ export default function DevsChangingPopOver(props) {
                 transformOrigin={{ vertical: 'top', horizontal: 'left', }}
             >
                 <FormGroup column className='dev-popover'>
-                    {props.devs.filter(dev => dev.id !== props.taskMainDevId).map(dev => <div>
+                    {props.devs.filter(dev => dev.id !== props.taskMainDevId).map(dev => <div className='dev-popover-line-2'>
                         <Checkbox
                             checked={selectedDevIds.some(selectedDevId => selectedDevId === dev.id)}
-                            onChange={e => handleChange(dev.id, e.target.checked)}
+                            onChange={e => handleChange(dev.id)}
                             color="primary"
                             value={dev.id}
                             size='small'
                         />
-                        <DevChip dev={dev} shortForm />
+                        {collaboratorButton(dev.id,true,e => handleChange(dev.id),false)}
                     </div>
                     )}
                 </FormGroup>

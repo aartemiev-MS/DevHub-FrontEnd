@@ -9,6 +9,9 @@ import TextField from '@material-ui/core/TextField';
 import CancelIcon from '@material-ui/icons/Cancel';
 import SaveIcon from '@material-ui/icons/Save';
 
+import RichTextEditor from './RichTextEditor'
+import Parser from 'html-react-parser';
+
 const useStyles = makeStyles((theme) => ({
     modal: {
         display: 'flex',
@@ -37,29 +40,26 @@ export default function TaskInfoModal(props) {
     const [taskNotes, setTaskNotes] = useState(props.taskModal.notes)
     const [isSaveRequired, setIsSaveRequired] = useState(false)
 
-    useEffect(() => {
-        setIsSaveRequired(taskName !== props.taskModal.name || taskDescription !== props.taskModal.description || taskNotes !== props.taskModal.notes)
-    }, [taskName, taskDescription, taskNotes])
-
     const classes = useStyles();
 
     const handleClose = () => props.setTaskModal(null)
-    const handleReadOnlyModeChange = e => setIsReadonly(!isReadonly)
     const handleOnChangeInfo = e => {
         switch (e.target.name) {
             case 'taskName':
+                setIsSaveRequired(true)
                 setTaskName(e.target.value)
-                break;
-
-            case 'taskDescription':
-                setTaskDescription(e.target.value)
-                break;
-
-            case 'taskNotes':
-                setTaskNotes(e.target.value)
                 break;
         }
     }
+    const handleOnChangeDescription = newValue => {
+        setIsSaveRequired(true)
+        setTaskDescription(newValue)
+    }
+    const handleOnChangeNotes = newValue => {
+        setIsSaveRequired(true)
+        setTaskNotes(newValue)
+    }
+
     const handleOnSave = () => {
         let updatedTask = { ...props.taskModal }
 
@@ -70,6 +70,7 @@ export default function TaskInfoModal(props) {
         props.saveTask(updatedTask)
         handleClose()
     }
+    
     return (
         <Modal
             className={classes.modal}
@@ -92,7 +93,7 @@ export default function TaskInfoModal(props) {
                             inputProps={{ readOnly: isReadonly }}
                             onChange={handleOnChangeInfo}
                         />
-                        <IconButton className={classes.iconButton} onClick={handleReadOnlyModeChange}>
+                        <IconButton className={classes.iconButton} onClick={()=>setIsReadonly(!isReadonly)}>
                             <EditIcon fontSize='large' color={isReadonly ? 'disabled' : 'primary'} />
                         </IconButton>
                         <IconButton className={classes.iconButton + ' ' + classes.saveIcon} onClick={isSaveRequired ? handleOnSave : undefined}>
@@ -103,28 +104,11 @@ export default function TaskInfoModal(props) {
                         </IconButton>
                     </div>
                     <div className='modal-task-inputs-wrapper'>
-                        <TextField
-                            className="modal-task-info"
-                            label="Task Info"
-                            variant="outlined"
-                            fullWidth
-                            multiline
-                            defaultValue={taskDescription}
-                            name='taskDescription'
-                            inputProps={{ readOnly: isReadonly }}
-                            onChange={handleOnChangeInfo}
-                        />
-                        <TextField
-                            className="modal-task-info"
-                            label="Notes"
-                            variant="outlined"
-                            fullWidth
-                            multiline
-                            defaultValue={taskNotes}
-                            name='taskNotes'
-                            inputProps={{ readOnly: isReadonly }}
-                            onChange={handleOnChangeInfo}
-                        />
+                        {props.adminMode?
+                         <RichTextEditor  content={taskDescription} setContent={handleOnChangeDescription}/>:
+                        <div className='modal-task-input'>{Parser(taskDescription)}</div>}
+                         
+                        <RichTextEditor content={taskNotes} setContent={handleOnChangeNotes}/>
                     </div>
                 </div>
             </Fade>

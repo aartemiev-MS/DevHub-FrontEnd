@@ -1,8 +1,13 @@
+
+import authService from './components/api-authorization/AuthorizeService'
+
 const backendURL = "https://api.magnificentsystems.app"
 //const backendURL = "https://localhost:5001"
 
 export async function getMountData() {
-    const response = await fetch(backendURL + "/Main/mount-data")
+    const loggedUser = await authService.getUser()
+    
+    const response = await fetch(backendURL + `/Main/mount-data?loggedUserId=${loggedUser.sub}`)
     const resp = await response.json();
 
     return resp
@@ -16,10 +21,12 @@ export async function addTaskBackend(newTask) {
         },
         body: JSON.stringify(newTask)
     }
-    const response = await fetch(backendURL + "/Main/add-new-task", requestData)
-    const resp = await response.json();
+    const response = fetch(backendURL + "/Main/add-new-task", requestData).then(()=>{
+        updateDateTimeBackend(newTask.id, Math.floor(Date.now() / 1000), 0)
+    })
+    //const resp = await response.json();
 
-    return resp
+    return 
 }
 
 export async function removeTaskBackend(removingTaskId) {

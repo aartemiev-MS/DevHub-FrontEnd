@@ -7,7 +7,7 @@ export default function TaskGroupSelect(props) {
 
     const handleChange = e => props.handleOnChangeTaskGroup(props.taskId, e.target.value === 0 ? null : e.target.value)
 
-    return <FormControl variant="outlined">
+    return <FormControl variant="outlined" className='task-group-select'>
         <Select
             value={props.currentGroupId ?? 0}
             color='primary'

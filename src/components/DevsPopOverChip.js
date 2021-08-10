@@ -6,8 +6,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 
-import DevChip from './DevChip'
-
 import { getTasksData } from '../tableData'
 
 const useStyles = makeStyles((theme) => ({
@@ -17,11 +15,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function DevsPopOverChip(props) {
-    const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
 
     const devs = props.devsSource
-    const tasks = getTasksData()
 
     const handlePopOverOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -43,15 +39,15 @@ export default function DevsPopOverChip(props) {
     }
 
     const isOpen = Boolean(anchorEl);
+    const getInitials_Long = name => name.split(' ')[0] + ' ' + name.split(' ').splice(1).map(word => word.charAt(0) + '.').join(' ')
 
     return (
         <span>
-            <DevChip
-                dev={props.dev}
-                clickable={!props.readOnly}
+            <Button
                 onClick={handlePopOverOpen}
-                empty={props.empty}
-            />
+                style={{backgroundColor:props.dev.associatedBackgroundColor, color:props.dev.isWhiteForegroundColor?'white':'black'}}>
+                        {getInitials_Long(props.dev.name)}
+                    </Button>
             {!props.readOnly && <Popover
                 open={isOpen}
                 anchorEl={anchorEl}
@@ -67,11 +63,11 @@ export default function DevsPopOverChip(props) {
             >
                 <FormGroup column className='dev-popover'>
                     {devs.map(dev =>
-                        <DevChip
-                            dev={dev}
-                            onClick={e => props.handleDevSelected(dev.id, props.taskId)}
-                            clickable
-                        />)}
+                    <Button
+                    onClick={e => props.handleDevSelected(dev.id, props.taskId)}
+                    style={{backgroundColor:dev.associatedBackgroundColor, color:dev.isWhiteForegroundColor?'white':'black'}}>
+                            {getInitials_Long(dev.name)}
+                        </Button>)}
                 </FormGroup>
             </Popover>}
         </span>

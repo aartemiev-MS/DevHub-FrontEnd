@@ -17,7 +17,8 @@ const initialState = {
     tasksData: [],
     taskGroups: [],
     taskSubGroups: [],
-    dragHandlerData:null
+    dragHandlerData: null,
+    loggedUserRole: null
 };
 
 export default function (state = initialState, action) {
@@ -29,7 +30,8 @@ export default function (state = initialState, action) {
                 devs: action.devs,
                 tasksData: action.tasksData,
                 taskGroups: action.taskGroups,
-                taskSubGroups: action.taskSubGroups
+                taskSubGroups: action.taskSubGroups,
+                loggedUserRole: action.loggedUserRole
             };
         }
         case UPDATE_TASKS: //update tasks

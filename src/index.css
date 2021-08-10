@@ -82,10 +82,14 @@ code {
   position: sticky;
   min-width: 30px;
   max-width: 30px;
-  padding: 5px 0 !important;
+  padding: 0 !important;
   left: 145px;
   background-color: white;
   z-index: 1;
+}
+.cell-priority>div {
+  display: flex;
+  justify-content: center;
 }
 .cell-task-info {
   min-width: 35px;
@@ -100,8 +104,15 @@ code {
 } */
 .cell-status {
   padding: 0px 0 !important;
-  min-width: 80px;
-  max-width: 80px;
+  min-width: 35px;
+  max-width: 35px;
+  position: sticky;
+  left: 775px;
+  z-index: 3;
+  background-color: white;
+}
+.cell-status>div {  
+  display: flex;
 }
 
 .status-container {
@@ -129,13 +140,20 @@ code {
 .cell-task-sub-group > div > div > div > div {
   padding: 5px 32px 5px 14px;
 }
+.cell-last-action-date {
+  min-width: 75px;
+  max-width: 75px;
+}
 .cell-action {
   min-width: 120px;
   max-width: 120px;
   padding: 0 !important;
 }
-.cell-action > button {
-  padding: 3px 10px !important;
+.cell-action > button,
+.cell-main-dev-name > span > button,
+.collaborator-button,
+.dev-popover > button  {
+  padding: 2px 5px !important;
   line-height: unset !important;
   text-transform: capitalize !important;
   font-size: unset !important;
@@ -154,6 +172,9 @@ code {
   z-index: 1;
   white-space: nowrap;
 }
+.cell-task-name>div>div{
+padding: 0 0 0 5px;
+}
 .cell-task-group > div,
 .cell-task-sub-group > div,
 .cell-task-name > div {
@@ -171,8 +192,11 @@ code {
 .cell-task-name {
   left: 475px;
 }
-.cell-task-name > div > div > input {
-  text-align: center;
+.cell-task-name > div > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cell-task-name > div > div > div > input {
 }
 
 .cell-collaborators {
@@ -182,9 +206,14 @@ code {
   left: 625px;
   background-color: white;
   z-index: 3;
+  padding: 0 !important;
 }
 
 .cell-date-picker {
+  padding: 3px !important;
+}
+
+.yellow-cell {
   background-color: lightyellow;
 }
 
@@ -198,7 +227,7 @@ code {
 }
 
 .cell-date-picker > .date-picker > div > .MuiOutlinedInput-input {
-  padding: 5px 10px 5px 10px !important;
+  padding: 5px 0px 5px 0px !important;
   text-align: center;
   width: 90px;
 }
@@ -248,8 +277,12 @@ li.Mui-selected {
 .dev-popover-line {
   display: flex;
   align-items: center;
-  width: 150px;
+  width: 180px;
   justify-content: space-between;
+}
+
+.dev-popover-line-2>span{
+padding: 3px;
 }
 
 .group-edge {
@@ -277,8 +310,7 @@ li.Mui-selected {
   border: 1.5px solid black;
   border-radius: 20px;
 }
-.big-view-buttons-wrap > button {
-}
+
 .big-view-buttons-wrap > button > span > svg {
   margin-right: 5px;
 }
@@ -289,6 +321,11 @@ li.Mui-selected {
   margin: 0 5px !important;
   width: 20px;
   height: 20px;
+}
+.small-view-button-custom {
+  background-color: white;
+  border-radius: 50%;
+  margin:0 6px
 }
 
 .task-row {
@@ -301,7 +338,8 @@ li.Mui-selected {
 .MuiTableCell-root {
   border-bottom: unset !important;
 }
-.MuiInputBase-root {
+.MuiInputBase-root,
+.dev-chips-group {
   font-size: unset !important;
 }
 /* .actions-button-group {
@@ -311,8 +349,7 @@ li.Mui-selected {
 .active-drag-mode > tbody > .border-row > td > div {
   height: 10px;
 }
-.active-drag-mode-row > td {
-}
+
 .active-drag-mode-row {
   background: repeating-linear-gradient(
     45deg,
@@ -348,7 +385,6 @@ li.Mui-selected {
 
 .modal-task-header {
   display: flex;
-  width: 700px;
   align-items: center;
   margin-bottom: 25px;
 }
@@ -359,6 +395,14 @@ li.Mui-selected {
 .modal-task-inputs-wrapper > div,
 .modal-task-info {
   margin: 0 10px !important;
+}
+
+.modal-task-input{
+  width: 480px;
+  max-height: 480px;
+  overflow-y:scroll;
+  border: 1px solid grey;
+  padding:15px;
 }
 
 .no-tasks-row {
@@ -385,6 +429,7 @@ li.Mui-selected {
 .devs-apply-button-group {
   display: flex !important;
   justify-content: center;
+  margin-top: 10px;
 }
 
 .status-form-control {
@@ -392,7 +437,9 @@ li.Mui-selected {
   margin-right: 5px !important;
 }
 
-.actions-button-group > button > span {
+.actions-button-group > button > span, 
+.cell-date-picker > button ,
+.cell-collaborators > button > span > button {
   font-size: 10px;
 }
 
@@ -407,4 +454,20 @@ li.Mui-selected {
 
 .status-item-icon {
   height: 30px;
+}
+
+.collaborator-button{
+  min-width: unset !important;
+}
+
+.collaborator-button-empty{
+  background-color: lightgray !important;
+}
+
+.collaborator-button-empty>span>span{
+  margin: 0 0 0 0;
+}
+
+.task-group-select{
+  flex-grow: 1;
 }

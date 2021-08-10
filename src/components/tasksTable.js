@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -68,6 +68,8 @@ import bugFixing from "../assets/icons/bug fixing.svg"
 import readyToDeploy from "../assets/icons/ready to deploy.svg"
 import deployedToDemo from "../assets/icons/demo.svg"
 import deployedToLive from "../assets/icons/live.svg"
+import inDevelopmentInactive from "../assets/icons/In development inactive.svg"
+import deployedToLiveInactive from "../assets/icons/live inactive.svg"
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -104,6 +106,13 @@ export default function TasksTable(props) {
     const tasksData = useSelector((state) => state.dashboardReducer.tasksData)
     const taskGroups = useSelector((state) => state.dashboardReducer.taskGroups)
     const taskSubGroups = useSelector((state) => state.dashboardReducer.taskSubGroups)
+    const loggedUserRole = useSelector((state) => state.dashboardReducer.loggedUserRole)
+    
+    const developerMode=loggedUserRole==="0"
+    const qaMode=loggedUserRole==="1"
+    const adminMode=loggedUserRole==="2"
+    
+    const canEditDates=adminMode
 
     useEffect(() => {
         document.addEventListener("contextmenu", (event) => {
@@ -162,7 +171,13 @@ export default function TasksTable(props) {
             dispatch(setMountData(data))
         })
 
+        testFunc()
     }, [])
+
+    const testFunc =async ()=>{
+        
+       // debugger
+    }
 
     useEffect(() => {
         console.log('tableData refreshed tasksData:', tasksData, '     getTableRowsData(tasksData):', getTableRowsData(tasksData))
@@ -232,7 +247,7 @@ export default function TasksTable(props) {
         if (nextFilterStatus) setFilterShowOnlyComplete(false)
     }
 
-    const handleRowOnContextMenu = (e, taskId, copyTaskGroup, copyTaskSubGroup) => {
+    const handleRowOnContextMenu = (e, taskId, copyTaskGroup, copyTaskSubGroup, hasTaskGroup,hasTaskSubGroup) => {
         e.stopPropagation()
         e.preventDefault()
 
@@ -242,7 +257,9 @@ export default function TasksTable(props) {
             taskId: taskId,
             isOnHold: getTaskById(taskId).tags.includes('onHold'),
             copyTaskGroup: copyTaskGroup,
-            copyTaskSubGroup: copyTaskSubGroup
+            copyTaskSubGroup: copyTaskSubGroup,
+            hasTaskGroup:hasTaskGroup,
+            hasTaskSubGroup:hasTaskSubGroup
         })
     }
 
@@ -264,12 +281,15 @@ export default function TasksTable(props) {
         const newTaskSubGroup = copyTaskSubGroup ? sourceTask.taskSubGroupId : null
 
         const newTask = getEmptyTask(generateGuid(), sourceTask.mainDevId, newPriorityForDeveloper, newTaskGroup, newTaskSubGroup)
-
+        
         const prioritiesShiftData = tasksData.filter(task => task.mainDevId === sourceTask.mainDevId && task.priorityForDeveloper >= newPriorityForDeveloper).map(task => { return { taskId: task.id, newPriorityIndex: ++task.priorityForDeveloper } })
 
+         addTaskBackend(newTask)
+         updatePrioritiesBackend(prioritiesShiftData)        
+        
+        newTask.created=Date.now() 
         dispatch(addTask(newTask, prioritiesShiftData))
-        addTaskBackend(newTask)
-        updatePrioritiesBackend(prioritiesShiftData)
+        
     }
 
     const removeRow = removingTaskId => {
@@ -311,6 +331,10 @@ export default function TasksTable(props) {
 
         dispatch(addTaskGroup(newTaskGroupId))
         updateTaskBackend(updatingTask)
+
+        setTimeout(() => {
+            focusNameUpdatingField()
+        }, 500);
     }
 
     const handleOnCreateNewSubGroupAction = (updatingTaskId) => {
@@ -325,15 +349,29 @@ export default function TasksTable(props) {
 
         dispatch(addTaskSubGroup(newTaskSubGroupId, updatingTask.taskGroupId))
         updateTaskBackend(updatingTask)
+        
+        setTimeout(() => {
+            focusNameUpdatingField()
+        }, 500);
     }
 
     const handleOnRenameGroupAction = renamingGroupTaskId => {
         setGroupUpdatingData({ taskId: renamingGroupTaskId, mode: 0 })
+        
+        setTimeout(() => {
+            focusNameUpdatingField()
+        }, 500);
     }
 
     const handleOnRenameSubGroupAction = renamingSubGroupTaskId => {
         setGroupUpdatingData({ taskId: renamingSubGroupTaskId, mode: 1 })
+        
+        setTimeout(() => {
+            focusNameUpdatingField()
+        }, 500);
     }
+
+    const focusNameUpdatingField=()=>document.getElementById('group-name-updating-field').focus()
 
     const SortableCont = SortableContainer(({ children }) => {
         return <tbody>{children}</tbody>;
@@ -598,7 +636,7 @@ export default function TasksTable(props) {
 
             devTasks.forEach(task => newTableRowsData.push(task))
 
-            if (index !== devs.length - 1)
+            if (adminMode&&index !== devs.length - 1)
                 newTableRowsData.push({
                     isBorder: true,
                     prevDev: dev,
@@ -717,7 +755,9 @@ export default function TasksTable(props) {
         const renderTaskSubGroupCell = () => {
             if (groupUpdatingData && groupUpdatingData.taskId === props.task.id && groupUpdatingData.mode === 1) {
                 return <div>
+                    {transparentDragger()}
                     <TextField
+                        id='group-name-updating-field'
                         defaultValue={taskSubGroups.find(group => group.id === props.task.taskSubGroupId).name}
                         onBlur={e => handleOnBlurTaskSubGroupName(e.target.value, props.task.taskSubGroupId)} />
                 </div>
@@ -731,9 +771,9 @@ export default function TasksTable(props) {
 
                 } else {
                     return <div>
-                        {props.task.taskSubGroupId ?
-                            (managementMode && noManagementFiltrationIsOn() && <RowHandler task={props.task} mode={2} />) :
-                            <DragIndicatorIcon style={{ color: 'transparent' }} />}
+                        {props.task.taskSubGroupId &&managementMode && noManagementFiltrationIsOn() ?
+                             <RowHandler task={props.task} mode={2} /> :
+                             transparentDragger()}
                         <TaskGroupSelect
                             currentGroupId={props.task.taskSubGroupId}
                             taskId={props.task.id}
@@ -755,7 +795,9 @@ export default function TasksTable(props) {
         const renderTaskGroupCell = () => {
             if (groupUpdatingData && groupUpdatingData.taskId === props.task.id && groupUpdatingData.mode === 0) {
                 return <div>
+                    {transparentDragger()}
                     <TextField
+                        id='group-name-updating-field'
                         defaultValue={taskGroups.find(group => group.id === props.task.taskGroupId).name}
                         onBlur={e => handleOnBlurTaskGroupName(e.target.value, props.task.taskGroupId)} />
                 </div>
@@ -767,9 +809,9 @@ export default function TasksTable(props) {
                     </div>
             } else {
                 return <div>
-                    {props.task.taskGroupId ?
-                        (managementMode && noManagementFiltrationIsOn() && <RowHandler task={props.task} mode={1} />) :
-                        <DragIndicatorIcon style={{ color: 'transparent' }} />}
+                    {props.task.taskGroupId && managementMode && noManagementFiltrationIsOn()?
+                         <RowHandler task={props.task} mode={1} /> :
+                         transparentDragger()}
                     <TaskGroupSelect
                         currentGroupId={props.task.taskGroupId}
                         taskId={props.task.id}
@@ -778,6 +820,8 @@ export default function TasksTable(props) {
                 </div>
             }
         }
+
+        const transparentDragger=()=><DragIndicatorIcon style={{ color: 'transparent' }} />
 
         const handleMainDevSelected = (newMainDevId, updatingTaskId) => {
             let updatingTask = tasksData.find(task => task.id === updatingTaskId)
@@ -836,9 +880,8 @@ export default function TasksTable(props) {
             dispatch(updateTasks([updatingTask]))
         }
 
-        // console.log('SortableTableRowElement props:', props)
         return (
-            <TableRow className={'task-row'} key={props.task.id} onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, false, false) }}>
+            <TableRow className={'task-row'} key={props.task.id} onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, false, false, Boolean(props.task.taskGroupId, Boolean(props.task.taskSubGroupId))) }}>
                 <TableCell align='center' className='cell-dragger'>{managementMode && noManagementFiltrationIsOn() && <RowHandler task={props.task} mode={0} />}</TableCell>
                 <TableCell align='center' className='cell-main-dev-name'>
                     <DevsPopOverChip
@@ -850,23 +893,25 @@ export default function TasksTable(props) {
                     />
                 </TableCell>
                 <TableCell align='center' className='cell-priority'>
-                    {props.task.tags.includes('onHold') ? <PauseCircleFilledIcon color='action' /> : props.task.priorityForDeveloper + 1}
+                    {props.task.tags.includes('onHold') ? <div><PauseCircleFilledIcon color='action' /></div> : props.task.priorityForDeveloper + 1}
                 </TableCell>
                 <TableCell
                     className='cell-task-group'
-                    onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, true, false) }}>
+                    onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, true, false, Boolean(props.task.taskGroupId), Boolean(props.task.taskSubGroupId)) }}>
                     {renderTaskGroupCell()}
                 </TableCell>
                 <TableCell
                     className='cell-task-sub-group'
-                    onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, true, true) }}>
+                    onContextMenu={e => { handleRowOnContextMenu(e, props.task.id, true, true, Boolean(props.task.taskGroupId), Boolean(props.task.taskSubGroupId)) }}>
                     {renderTaskSubGroupCell()}
                 </TableCell>
                 <TableCell className='cell-task-name'>
                     <div>
                         {managementMode && noManagementFiltrationIsOn() && <RowHandler task={props.task} mode={3} />}
                         {readOnlyMode ?
-                            props.task.name :
+                    <Tooltip title={props.task.name} arrow interactive>                        
+                            <span>{props.task.name}</span> 
+                    </Tooltip>:
                             <TextField defaultValue={props.task.name} onBlur={e => { handleOnBlurTaskName(e.target.value, props.task.id) }} />}
                     </div>
                 </TableCell>
@@ -881,6 +926,7 @@ export default function TasksTable(props) {
                     />
                 </TableCell>
                 <TableCell align='center' className='cell-status'>
+                    <div>
                     <StatusPopOverChip className="status-chip"
                         readOnlyMode={readOnlyMode}
                         statusSource={statuses}
@@ -888,36 +934,34 @@ export default function TasksTable(props) {
                         taskId={props.task.id}
                         statusId={props.task.status}
                     />
-
+                    </div>
+                </TableCell>
+                <TableCell align='center' className='cell-last-action-date cell-date-picker' >
+                    {renderLastActionDateCell()}
                 </TableCell>
                 <TableCell align='center' className='cell-action' >
                     {renderActionButtons()}
                 </TableCell>
-                {managementMode && <TableCell align='center' className='cell-last-action-date cell-date-picker' >
-                    {renderLastActionDateCell()}
-                </TableCell>}
                 <TableCell align='center' className={'cell-task-info' + (showDatesInfo || showBranchesInfo ? ' group-edge' : '')}>
-                    <Tooltip title={props.task.description} arrow interactive>
                         <IconButton onClick={() => { openTaskInfo(props.task) }}>
                             <ImportContactsIcon fontSize="medium" color='primary' />
                         </IconButton>
-                    </Tooltip>
                 </TableCell>
                 {showDatesInfo && <>
-                    <TableCell className={'cell-date-picker'} align='center' >
-                        <DateTimePicker dateName={'Created'} date={props.task.created} readOnly={readOnlyMode} handleOnChangeDate={handleOnChangeDate} taskId={props.task.id} dateTypeIndex={0} />
+                    <TableCell className={'cell-date-picker yellow-cell'} align='center' >
+                        <DateTimePicker dateName={'Created'} date={props.task.created} readOnly={readOnlyMode} handleOnChangeDate={handleOnChangeDate} taskId={props.task.id} dateTypeIndex={0} canEditDates={canEditDates}/>
                     </TableCell>
-                    <TableCell className={'cell-date-picker'} align='center' >
-                        <DateTimePicker dateName={'Started'} date={props.task.started} readOnly={readOnlyMode} handleOnChangeDate={handleOnChangeDate} taskId={props.task.id} dateTypeIndex={1} />
+                    <TableCell className={'cell-date-picker yellow-cell'} align='center' >
+                        <DateTimePicker dateName={'Started'} date={props.task.started} readOnly={readOnlyMode} handleOnChangeDate={handleOnChangeDate} taskId={props.task.id} dateTypeIndex={1}  canEditDates={canEditDates}/>
                     </TableCell>
-                    <TableCell className={'cell-date-picker'} align='center' >
-                        <DateTimePicker dateName={'Finished'} date={props.task.finished} readOnly={readOnlyMode} handleOnChangeDate={handleOnChangeDate} taskId={props.task.id} dateTypeIndex={2} />
+                    <TableCell className={'cell-date-picker yellow-cell'} align='center' >
+                        <DateTimePicker dateName={'Finished'} date={props.task.finished} readOnly={readOnlyMode} handleOnChangeDate={handleOnChangeDate} taskId={props.task.id} dateTypeIndex={2}  canEditDates={canEditDates}/>
                     </TableCell>
-                    <TableCell className={'cell-date-picker'} align='center' >
-                        <DateTimePicker dateName={'Tested'} date={props.task.tested} readOnly={readOnlyMode} handleOnChangeDate={handleOnChangeDate} taskId={props.task.id} dateTypeIndex={3} />
+                    <TableCell className={'cell-date-picker yellow-cell'} align='center' >
+                        <DateTimePicker dateName={'Tested'} date={props.task.tested} readOnly={readOnlyMode} handleOnChangeDate={handleOnChangeDate} taskId={props.task.id} dateTypeIndex={3}  canEditDates={canEditDates}/>
                     </TableCell>
-                    <TableCell className={'cell-date-picker' + (showBranchesInfo ? ' group-edge' : '')} align='center' >
-                        <DateTimePicker dateName={'Deployed'} date={props.task.deployed} readOnly={readOnlyMode} handleOnChangeDate={handleOnChangeDate} taskId={props.task.id} dateTypeIndex={4} />
+                    <TableCell className={'cell-date-picker yellow-cell' + (showBranchesInfo ? ' group-edge' : '')} align='center' >
+                        <DateTimePicker dateName={'Deployed'} date={props.task.deployed} readOnly={readOnlyMode} handleOnChangeDate={handleOnChangeDate} taskId={props.task.id} dateTypeIndex={4}  canEditDates={canEditDates}/>
                     </TableCell>
                 </>}
                 {showBranchesInfo && <>
@@ -943,7 +987,7 @@ export default function TasksTable(props) {
 
     const SortableTableBorderRowElement = props => {
         let emptyCells = []
-        const cellsCount = 10 + (managementMode ? 1 : 0) + (showDatesInfo ? 5 : 0) + (showBranchesInfo ? 15 : 0)
+        const cellsCount = 11  + (showDatesInfo ? 5 : 0) + (showBranchesInfo ? 15 : 0)
 
         for (let i = 0; i < cellsCount; i++) {
             emptyCells.push(<TableCell >
@@ -1016,16 +1060,16 @@ export default function TasksTable(props) {
                         <TableHead>
                             <TableRow className='black-row'>
                                 <TableCell align='center' className='cell-dragger'>
-                                    <div>
+                                {adminMode&&<div>
                                         <IconButton className='filtering-header-icon' onClick={handleReadOnlyModeChange}>
                                             <EditIcon fontSize="small" color={readOnlyMode ? 'disabled' : 'primary'} />
                                         </IconButton>
-                                    </div>
+                                    </div>}
                                 </TableCell>
                                 <TableCell align='center' className='cell-main-dev-name' >
-                                    <IconButton className='filtering-header-icon' onClick={handleOnClickManagementMode}>
+                                    {adminMode&&<IconButton className='filtering-header-icon' onClick={handleOnClickManagementMode}>
                                         <FreeBreakfastIcon fontSize="small" color={managementMode ? 'primary' : 'disabled'} />
-                                    </IconButton>
+                                    </IconButton>}
                                     Main
                                     <DevsFilteringPopOverButton
                                         filterDevIds={filterMainDevIds}
@@ -1035,12 +1079,12 @@ export default function TasksTable(props) {
                                         hidden={managementMode} />
                                 </TableCell>
                                 <TableCell align='center' className='cell-priority'>
-                                    <IconButton className='small-view-button' onClick={handleFilterShowOnHoldsChange}>
+                                 <IconButton className='small-view-button' onClick={handleFilterShowOnHoldsChange}>
                                         <PauseCircleFilledIcon fontSize="small" color={filterShowOnHolds ? 'primary' : 'disabled'} />
                                     </IconButton>
                                 </TableCell>
-                                <TableCell align='center' className='cell-task-group'>
-                                    Task Group
+                                <TableCell align='left' className='cell-task-group'>
+                                &nbsp; Task Group
                                     <GroupFilteringPopOver
                                         filterGroupIds={filterGroupIds}
                                         setFilterGroupIds={setFilterGroupIds}
@@ -1048,7 +1092,7 @@ export default function TasksTable(props) {
                                         taskGroups={taskGroups}
                                         hidden={managementMode} />
                                 </TableCell>
-                                <TableCell align='center' className='cell-task-sub-group'>
+                                <TableCell align='left' className='cell-task-sub-group'>
                                     Task Sub group
                                     <GroupFilteringPopOver
                                         filterGroupIds={filterSubGroupIds}
@@ -1058,8 +1102,8 @@ export default function TasksTable(props) {
                                         subGroupMode
                                         hidden={managementMode} />
                                 </TableCell>
-                                <TableCell align='center' className='cell-task-name'>Task Name</TableCell>
-                                <TableCell align='center' className='cell-collaborators' >
+                                <TableCell align='left' className='cell-task-name'>Task Name</TableCell>
+                                <TableCell align='left' className='cell-collaborators' >
                                     Collaborators
                                     <DevsFilteringPopOverButton
                                         filterDevIds={filterCollDevIds}
@@ -1070,13 +1114,25 @@ export default function TasksTable(props) {
                                         hidden={managementMode} />
                                 </TableCell>
                                 <TableCell align='center' className='cell-status' >
-                                    Status
                                     <StatusFilteringPopOver
                                         filterStatusIds={filterStatusIds}
                                         setFilterStatusIds={setFilterStatusIds}
                                         tasksData={tasksData}
                                         statuses={statuses}
                                         hidden={managementMode} />
+                                </TableCell>
+                                <TableCell align='center' className='cell-last-action-date' >
+                                       { filterShowOnlyComplete? 
+                                       <img className={"small-view-button-custom"+(managementMode?'':' hidden-item')} alt="" src={inDevelopment}  onClick={handleShowOnlyCompleteChange}/>:
+                                       <img className={"small-view-button-custom"+(managementMode?'':' hidden-item')} alt="" src={inDevelopmentInactive}  onClick={handleShowOnlyCompleteChange}/>}
+
+                                        { filterShowOnlyIncomplete? 
+                                       <img className={"small-view-button-custom"+(managementMode?'':' hidden-item')} alt="" src={deployedToLive}  onClick={handleShowOnlyIncompleteChange}/>:
+                                       <img className={"small-view-button-custom"+(managementMode?'':' hidden-item')} alt="" src={deployedToLiveInactive}  onClick={handleShowOnlyIncompleteChange}/>}
+
+                                    {/* <IconButton className={'small-view-button '+(managementMode?'':'hidden-item')} onClick={handleShowOnlyIncompleteChange}>
+                                        <BuildIcon fontSize="small" color={filterShowOnlyIncomplete ? 'primary' : 'disabled'} />
+                                    </IconButton> */}
                                 </TableCell>
                                 <TableCell align='center' className='cell-action' >
                                     <div>
@@ -1088,14 +1144,6 @@ export default function TasksTable(props) {
                                         </IconButton>
                                     </div>
                                 </TableCell>
-                                {managementMode && <TableCell align='center' className='cell-last-action-date' >
-                                    <IconButton className='small-view-button' onClick={handleShowOnlyCompleteChange}>
-                                        <CheckCircleIcon fontSize="small" color={filterShowOnlyComplete ? 'primary' : 'disabled'} />
-                                    </IconButton>
-                                    <IconButton className='small-view-button' onClick={handleShowOnlyIncompleteChange}>
-                                        <BuildIcon fontSize="small" color={filterShowOnlyIncomplete ? 'primary' : 'disabled'} />
-                                    </IconButton>
-                                </TableCell>}
                                 <TableCell align='center' className='cell-task-info' >Info</TableCell>
                                 {showDatesInfo &&
                                     <>
@@ -1145,6 +1193,7 @@ export default function TasksTable(props) {
                 contextMenuAnchor={contextMenuAnchor}
                 setContextMenuAnchor={setContextMenuAnchor}
                 readOnlyMode={readOnlyMode}
+                adminMode={adminMode}
 
                 onHoldAction={handleOnHoldAction}
                 handleOnCreateNewGroupAction={handleOnCreateNewGroupAction}
@@ -1157,6 +1206,7 @@ export default function TasksTable(props) {
                 setTaskModal={setTaskModal}
                 readOnlyMode={readOnlyMode}
                 saveTask={handleUpdateTaskNameAndInfo}
+                adminMode={adminMode}
             />}
         </>
     );

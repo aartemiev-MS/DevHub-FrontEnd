@@ -120,10 +120,10 @@ export default function TableContextMenu(props) {
       onClose={handleClose}
       autoFocus={false}
     >
-      <StyledMenuItem onClick={onClickAddAbove}>
+      {props.adminMode&&<StyledMenuItem onClick={onClickAddAbove}>
         <ListItemIcon>
           <KeyboardArrowUpIcon fontSize="medium" />
-          {props.contextMenuAnchor.copyTaskGroup && (
+          {props.contextMenuAnchor.copyTaskGroup && !props.contextMenuAnchor.copyTaskSubGroup && (
             <Chip size="small" label="tg" clickable={false} />
           )}
           {props.contextMenuAnchor.copyTaskSubGroup && (
@@ -131,19 +131,19 @@ export default function TableContextMenu(props) {
           )}
         </ListItemIcon>
         <ListItemText primary="Add a row above" />
-      </StyledMenuItem>
-      <StyledMenuItem onClick={onClickAddBelow}>
+      </StyledMenuItem>}
+      {props.adminMode&&<StyledMenuItem onClick={onClickAddBelow}>
         <ListItemIcon>
           <KeyboardArrowDownIcon fontSize="medium" />
         </ListItemIcon>
         <ListItemText primary="Add a row below" />
-      </StyledMenuItem>
-      <StyledMenuItem onClick={onClickRemove}>
+      </StyledMenuItem>}
+      {props.adminMode&&<StyledMenuItem onClick={onClickRemove}>
         <ListItemIcon>
           <DeleteForeverIcon fontSize="medium" />
         </ListItemIcon>
         <ListItemText primary="Remove row" />
-      </StyledMenuItem>
+      </StyledMenuItem>}
 
       {props.contextMenuAnchor.isOnHold ? (
         <StyledMenuItem onClick={onClickOnHoldAction}>
@@ -170,7 +170,7 @@ export default function TableContextMenu(props) {
           <ListItemText primary="Сreate new group" />
         </StyledMenuItem>,
 
-        <StyledMenuItem onClick={handleOnCreateNewSubGroupAction}>
+        props.contextMenuAnchor.hasTaskGroup && <StyledMenuItem onClick={handleOnCreateNewSubGroupAction}>
           <ListItemIcon>
             <img src={createNewSubGroupIcon} alt="" />
           </ListItemIcon>
@@ -184,13 +184,14 @@ export default function TableContextMenu(props) {
           <ListItemText primary="Rename group" />
         </StyledMenuItem>,
 
-        <StyledMenuItem onClick={handleOnRenameSubGroupAction}>
+        props.contextMenuAnchor.hasTaskSubGroup && <StyledMenuItem onClick={handleOnRenameSubGroupAction}>
           <ListItemIcon>
             <img src={renameSubGroupIcon} alt="" />
           </ListItemIcon>
           <ListItemText primary="Rename sub group" />
         </StyledMenuItem>
-        ]}
+        ]
+        }
     </StyledMenu>
   );
 }

@@ -41,6 +41,7 @@ export const setMountData = mountData => ({
     tasksData: mountData.tasksData,
     taskGroups: mountData.taskGroups,
     taskSubGroups: mountData.taskSubGroups,
+    loggedUserRole:mountData.loggedUserRole
 })
 
 export const addTaskGroup = newTaskGroupId => ({

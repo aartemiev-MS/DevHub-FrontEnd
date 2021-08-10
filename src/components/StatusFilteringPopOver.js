@@ -11,8 +11,6 @@ import IconButton from '@material-ui/core/IconButton';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 
-import DevChip from './DevChip'
-
 export default function StatusFilteringPopOverButton(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [selectedIds, setSelectedIds] = React.useState(props.filterStatusIds);

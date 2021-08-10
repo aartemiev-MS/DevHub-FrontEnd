@@ -9,7 +9,6 @@ import ButtonGroup from '@material-ui/core/ButtonGroup';
 import IconButton from '@material-ui/core/IconButton';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
-import DevChip from './DevChip'
 
 const useStyles = makeStyles((theme) => ({
     typography: {
@@ -32,15 +31,27 @@ export default function DevsFilteringPopOverButton(props) {
         props.setFilterDevIds([])
         handleClose();
     }
-    const handleChange = (devId, isChecked) => {
+    const handleChange = (devId) => {
+        const isCurrentlyChecked=selectedIds.some(id=>id===devId)
+
         let updatedDevIds = Object.values({ ...selectedIds })
 
-        if (isChecked)
-            updatedDevIds.push(devId)
+        if (isCurrentlyChecked)
+        updatedDevIds = updatedDevIds.filter(id => id !== devId)
         else
-            updatedDevIds = updatedDevIds.filter(id => id !== devId)
+        updatedDevIds.push(devId)
 
         setSelectedIds(updatedDevIds)
+    }
+    
+    const getInitials_Long = name => name.split(' ')[0] + ' ' + name.split(' ').splice(1).map(word => word.charAt(0) + '.').join(' ')
+
+    const devButton=(dev)=>{
+        return <Button
+                //onClick={handlePopOverOpen}
+                style={{backgroundColor:dev.associatedBackgroundColor, color:dev.isWhiteForegroundColor?'white':'black'}}>
+                {getInitials_Long(dev.name)}
+               </Button>
     }
 
     const isOpen = Boolean(anchorEl);
@@ -64,15 +75,15 @@ export default function DevsFilteringPopOverButton(props) {
                             props.tasks.filter(task => task.collaboratorsIds.includes(dev.id)).length :
                             props.tasks.filter(task => task.mainDevId === dev.id).length
 
-                        return <div className='dev-popover-line'>
+                        return <div className='dev-popover-line'
+                            onClick={e => handleChange(dev.id)}>
                             <Checkbox
                                 checked={selectedIds.includes(dev.id)}
-                                onChange={e => handleChange(dev.id, e.target.checked)}
                                 color="primary"
                                 value={dev.id}
                                 size='small'
                             />
-                            <DevChip dev={dev} shortForm={props.shortForm} />
+                            {devButton(dev)}
                             <span>{`(${devAssociatedTasksQuantity})`}</span>
                         </div>
                     })}
