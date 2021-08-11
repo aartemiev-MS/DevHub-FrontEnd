@@ -2,13 +2,15 @@ import {
     UPDATE_TASKS,
     SET_MOUNT_DATA,
     ADD_TASK,
+    ADD_BRANCH_DATA_SET,
     REMOVE_TASK,
     UPDATE_PRIORITIES,
     ADD_TASK_GROUP,
     UPDATE_TASK_GROUP_NAME,
     UPDATE_TASK_SUB_GROUP_NAME,
     ADD_TASK_SUB_GROUP,
-    UPDATE_DRAG_HANDLER_DATA
+    UPDATE_DRAG_HANDLER_DATA,
+    UPDATE_BRANCH_DATA_SET
 } from "../actions";
 
 const initialState = {
@@ -18,7 +20,9 @@ const initialState = {
     taskGroups: [],
     taskSubGroups: [],
     dragHandlerData: null,
-    loggedUserRole: null
+    loggedUserRole: null,
+    solutionBranches: [],
+    branchDataSets: []
 };
 
 export default function (state = initialState, action) {
@@ -31,7 +35,9 @@ export default function (state = initialState, action) {
                 tasksData: action.tasksData,
                 taskGroups: action.taskGroups,
                 taskSubGroups: action.taskSubGroups,
-                loggedUserRole: action.loggedUserRole
+                loggedUserRole: action.loggedUserRole,
+                solutionBranches: action.solutionBranches,
+                branchDataSets: action.branchDataSets
             };
         }
         case UPDATE_TASKS: //update tasks
@@ -50,6 +56,13 @@ export default function (state = initialState, action) {
             return {
                 ...state,
                 tasksData: [...updatePriorities(state.tasksData, action.prioritiesShiftData), action.newTask]
+            };
+        case ADD_BRANCH_DATA_SET:
+            debugger
+            const aaa=[...state.branchDataSets, action.newBranchDataSet]
+            return {
+                ...state,
+                branchDataSets: [...state.branchDataSets, action.newBranchDataSet]
             };
         case UPDATE_PRIORITIES:
             return {
@@ -95,6 +108,12 @@ export default function (state = initialState, action) {
             return {
                 ...state,
                 dragHandlerData: action.newData
+            };
+        case UPDATE_BRANCH_DATA_SET:
+            const updatedBranchDataSets = state.branchDataSets.map(branchesSet=>branchesSet.id===action.updatedDataSet.id?action.updatedDataSet:branchesSet)
+            return {
+                ...state,
+                branchDataSets: updatedBranchDataSets
             };
         default:
             return state;

@@ -42,6 +42,17 @@ code {
 
 .branch-info-cell {
   white-space: nowrap;
+  min-width: 120px;
+  max-width: 120px;
+  padding: 2px 5px  !important;
+}
+
+.branch-info-cell  {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.branch-info-cell>span{  
+  font-size: 0.8rem;
 }
 
 .logout-button.MuiIconButton-root {
@@ -143,6 +154,10 @@ code {
 .cell-last-action-date {
   min-width: 75px;
   max-width: 75px;
+  padding: 0 !important;
+}
+.cell-last-action-date>div{
+  display: flex;
 }
 .cell-action {
   min-width: 120px;
@@ -177,7 +192,8 @@ padding: 0 0 0 5px;
 }
 .cell-task-group > div,
 .cell-task-sub-group > div,
-.cell-task-name > div {
+.cell-task-name > div,
+.branch-info-cell > div {
   display: flex;
   line-height: 24px;
   max-width: 150px;
@@ -207,6 +223,9 @@ padding: 0 0 0 5px;
   background-color: white;
   z-index: 3;
   padding: 0 !important;
+}
+.cell-collaborators >button{
+  overflow-wrap: anywhere;
 }
 
 .cell-date-picker {
@@ -470,4 +489,28 @@ padding: 3px;
 
 .task-group-select{
   flex-grow: 1;
+}
+
+.table-loading-bar-wrapper{
+display: flex;
+width: 100vw;
+height: 100vh;
+align-items: center;
+justify-content: center;
+}
+
+.table-loading-bar{
+  width: 300px !important;
+  height: 300px !important;
+}
+
+.MuiSelect-select.MuiSelect-select{
+  padding: 5px 25px 5px 5px !important;
+}
+
+.branch-select-item{
+  max-width: 200px;
+  overflow-wrap: break-word !important;
+  font-size: 0.8rem !important;
+  
 }

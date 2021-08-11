@@ -27,8 +27,7 @@ import Chip from '@material-ui/core/Chip';
 import PauseCircleFilledIcon from '@material-ui/icons/PauseCircleFilled';
 import FreeBreakfastIcon from '@material-ui/icons/FreeBreakfast';
 import ImportContactsIcon from '@material-ui/icons/ImportContacts';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import BuildIcon from '@material-ui/icons/Build';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { getTasksData, getStatuses, getDevs } from '../tableData'
 import difference from 'lodash/difference'
@@ -44,6 +43,7 @@ import StatusFilteringPopOver from './StatusFilteringPopOver'
 import GroupFilteringPopOver from './GroupFilteringPopOver'
 import StatusSelect from './StatusSelect'
 import TaskGroupSelect from './TaskGroupSelect'
+import BranchSelect from './BranchSelect'
 
 import { Scrollbars } from 'react-custom-scrollbars';
 
@@ -55,8 +55,8 @@ import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { SortableHandle } from "react-sortable-hoc";
 
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { setMountData, addTask, removeTask, updateTasks, updatePriorities, addTaskGroup, addTaskSubGroup, updateTaskGroupName, updateTaskSubGroupName, updateDragHandlerData } from '../redux/actions'
-import { getMountData, addTaskBackend, removeTaskBackend, updatePrioritiesBackend, updateTaskBackend, updateDateTimeBackend, addTaskGroupBackend, addTaskSubGroupBackend, editTaskGroupNameBackend, editTaskSubGroupNameBackend } from '../backendRequests'
+import { setMountData, addTask, removeTask, updateTasks, updatePriorities, addTaskGroup, addTaskSubGroup, updateTaskGroupName, updateTaskSubGroupName, updateDragHandlerData, addBranchDataSet, updateBranchDataSet } from '../redux/actions'
+import { getMountData, addTaskBackend, removeTaskBackend, updatePrioritiesBackend, updateTaskBackend, updateDateTimeBackend, addTaskGroupBackend, addTaskSubGroupBackend, editTaskGroupNameBackend, editTaskSubGroupNameBackend,addBranchDataSetBackend, updateBranchDataSetBackend} from '../backendRequests'
 import StatusPopOverChip from './StatusPopOverChip';
 
 import notStarted from "../assets/icons/Not started.svg"
@@ -107,6 +107,8 @@ export default function TasksTable(props) {
     const taskGroups = useSelector((state) => state.dashboardReducer.taskGroups)
     const taskSubGroups = useSelector((state) => state.dashboardReducer.taskSubGroups)
     const loggedUserRole = useSelector((state) => state.dashboardReducer.loggedUserRole)
+    const solutionBranches = useSelector((state) => state.dashboardReducer.solutionBranches)
+    const branchDataSets = useSelector((state) => state.dashboardReducer.branchDataSets)
     
     const developerMode=loggedUserRole==="0"
     const qaMode=loggedUserRole==="1"
@@ -170,14 +172,7 @@ export default function TasksTable(props) {
             console.log('mount data:', data)
             dispatch(setMountData(data))
         })
-
-        testFunc()
     }, [])
-
-    const testFunc =async ()=>{
-        
-       // debugger
-    }
 
     useEffect(() => {
         console.log('tableData refreshed tasksData:', tasksData, '     getTableRowsData(tasksData):', getTableRowsData(tasksData))
@@ -447,7 +442,7 @@ export default function TasksTable(props) {
 
             } else {
                 newMainDevId = oldTableRowsData[originalIndexOfReplacingRow - 1].mainDevId
-                newFirstTaskPriority = oldTableRowsData[originalIndexOfReplacingRow - 1].priorityForDeveloper + 1
+                newFirstTaskPriority = oldTableRowsData[originalIndexOfReplacingRow - 1].priorityForDeveloper 
                 taskToCopyFields = oldTableRowsData[originalIndexOfReplacingRow - 1]
             }
 
@@ -542,7 +537,7 @@ export default function TasksTable(props) {
                 return newPriority.newPriorityIndex !== oldCorrespondantPriority.newPriorityIndex
             })
 
-            //debugger
+            debugger
 
             dispatch(updatePriorities(updatedPriorities))
             updatePrioritiesBackend(updatedPriorities)
@@ -821,6 +816,82 @@ export default function TasksTable(props) {
             }
         }
 
+        const renderBranchCell=(solutionIndex,taskId, readOnlyMode)=>{
+            const selectedValue=getBranchSelectedValue(taskId,solutionIndex)
+
+            if(readOnlyMode){
+                return <Tooltip title={selectedValue} arrow interactive> 
+                <span>{selectedValue}</span>
+                </Tooltip>
+            }else{
+                return <BranchSelect 
+            solutionData={solutionBranches.find(solution=>solution.solutionIndex===solutionIndex)} 
+            selectedValue={selectedValue}
+            onChange={(newBranchName)=>onChangeBranchSelect(newBranchName,taskId,solutionIndex)}/>
+            }
+        }
+
+        const onChangeBranchSelect=(newBranchName,taskId,solutionIndex)=>{
+            const taskBranch = branchDataSets.find(dataSet=>dataSet.devTaskId===taskId)
+            
+            if(Boolean(taskBranch)){
+                updateBranchDataSetBackend(taskBranch.id,solutionIndex,newBranchName).then(response=>{
+                    dispatch(updateBranchDataSet(response))
+                })
+            }else{
+                const newBranchDataSetId = generateGuid()
+                addBranchDataSetBackend(newBranchDataSetId,taskId).then(()=>{
+                    updateBranchDataSetBackend(newBranchDataSetId,solutionIndex,newBranchName).then(response=>{
+                        dispatch(addBranchDataSet(response))
+                    })
+                })                
+            }
+        }
+
+        const getBranchSelectedValue=(taskId,solutionIndex)=>{
+            const branchDataSet = branchDataSets.find(dataSet=>dataSet.devTaskId===taskId)
+
+            if(Boolean(branchDataSet)){
+            switch (solutionIndex) {
+                case 0:
+                    return branchDataSet.megalfa
+                case 1:
+                    return branchDataSet.megalfaHub
+                case 2:
+                    return branchDataSet.acomba
+                case 3:
+                    return branchDataSet.maService
+                case 4:
+                    return branchDataSet.identity
+                case 5:
+                    return branchDataSet.registry
+                case 6:
+                    return branchDataSet.manufacturing
+                case 7:
+                    return branchDataSet.shipping
+                case 8:
+                    return branchDataSet.crossRef
+                case 9:
+                    return branchDataSet.catalog
+                case 10:
+                    return branchDataSet.customer
+                case 11:
+                    return branchDataSet.ordering
+                case 12:
+                    return branchDataSet.scheduling
+                case 13:
+                    return branchDataSet.aooHub
+                case 14:
+                    return branchDataSet.aoo
+            
+                default:
+                    return null
+            }
+            }else{
+                return null
+            }
+        }
+
         const transparentDragger=()=><DragIndicatorIcon style={{ color: 'transparent' }} />
 
         const handleMainDevSelected = (newMainDevId, updatingTaskId) => {
@@ -965,21 +1036,21 @@ export default function TasksTable(props) {
                     </TableCell>
                 </>}
                 {showBranchesInfo && <>
-                    <TableCell align='center' className='branch-info-cell highlighted-branches-cell'>{props.task.branchData && props.task.branchData.megalfa}</TableCell>
-                    <TableCell align='center' className='branch-info-cell highlighted-branches-cell'>{props.task.branchData && props.task.branchData.megalfaHub}</TableCell>
-                    <TableCell align='center' className='branch-info-cell highlighted-branches-cell'>{props.task.branchData && props.task.branchData.acomba}</TableCell>
-                    <TableCell align='center' className='branch-info-cell highlighted-branches-cell group-edge'>{props.task.branchData && props.task.branchData.maService}</TableCell>
-                    <TableCell align='center' className='branch-info-cell'>{props.task.branchData && props.task.branchData.identity}</TableCell>
-                    <TableCell align='center' className='branch-info-cell'>{props.task.branchData && props.task.branchData.registry}</TableCell>
-                    <TableCell align='center' className='branch-info-cell'>{props.task.branchData && props.task.branchData.manufacturing}</TableCell>
-                    <TableCell align='center' className='branch-info-cell'>{props.task.branchData && props.task.branchData.shipping}</TableCell>
-                    <TableCell align='center' className='branch-info-cell'>{props.task.branchData && props.task.branchData.crossRef}</TableCell>
-                    <TableCell align='center' className='branch-info-cell'>{props.task.branchData && props.task.branchData.catalog}</TableCell>
-                    <TableCell align='center' className='branch-info-cell'>{props.task.branchData && props.task.branchData.customer}</TableCell>
-                    <TableCell align='center' className='branch-info-cell'>{props.task.branchData && props.task.branchData.ordering}</TableCell>
-                    <TableCell align='center' className='branch-info-cell group-edge'>{props.task.branchData && props.task.branchData.scheduling}</TableCell>
-                    <TableCell align='center' className='branch-info-cell highlighted-branches-cell'>{props.task.branchData && props.task.branchData.aooHub}</TableCell>
-                    <TableCell align='center' className='branch-info-cell highlighted-branches-cell'>{props.task.branchData && props.task.branchData.aoo}</TableCell>
+                    <TableCell align='center' className='branch-info-cell highlighted-branches-cell'>{renderBranchCell(0,props.task.id,readOnlyMode)}</TableCell>
+                    <TableCell align='center' className='branch-info-cell highlighted-branches-cell'>{renderBranchCell(1,props.task.id, readOnlyMode)}</TableCell>
+                    <TableCell align='center' className='branch-info-cell highlighted-branches-cell'></TableCell>
+                    <TableCell align='center' className='branch-info-cell highlighted-branches-cell group-edge'>{renderBranchCell(3,props.task.id, readOnlyMode)}</TableCell>
+                    <TableCell align='center' className='branch-info-cell'>{renderBranchCell(4,props.task.id, readOnlyMode)}</TableCell>
+                    <TableCell align='center' className='branch-info-cell'>{renderBranchCell(5,props.task.id, readOnlyMode)}</TableCell>
+                    <TableCell align='center' className='branch-info-cell'>{renderBranchCell(6,props.task.id, readOnlyMode)}</TableCell>
+                    <TableCell align='center' className='branch-info-cell'>{renderBranchCell(7,props.task.id, readOnlyMode)}</TableCell>
+                    <TableCell align='center' className='branch-info-cell'>{renderBranchCell(8,props.task.id, readOnlyMode)}</TableCell>
+                    <TableCell align='center' className='branch-info-cell'>{renderBranchCell(9,props.task.id, readOnlyMode)}</TableCell>
+                    <TableCell align='center' className='branch-info-cell'>{renderBranchCell(10,props.task.id, readOnlyMode)}</TableCell>
+                    <TableCell align='center' className='branch-info-cell'>{renderBranchCell(11,props.task.id, readOnlyMode)}</TableCell>
+                    <TableCell align='center' className='branch-info-cell group-edge'>{renderBranchCell(12,props.task.id, readOnlyMode)}</TableCell>
+                    <TableCell align='center' className='branch-info-cell highlighted-branches-cell'>{renderBranchCell(13,props.task.id, readOnlyMode)}</TableCell>
+                    <TableCell align='center' className='branch-info-cell highlighted-branches-cell'>{renderBranchCell(14,props.task.id, readOnlyMode)}</TableCell>
                 </>}
             </TableRow >
         )
@@ -1031,8 +1102,8 @@ export default function TasksTable(props) {
                 />
             })
     }
-
     return (
+        devs.length>0?
         <>
             <TableContainer className='table-container' component={Paper}>
 
@@ -1122,6 +1193,7 @@ export default function TasksTable(props) {
                                         hidden={managementMode} />
                                 </TableCell>
                                 <TableCell align='center' className='cell-last-action-date' >
+                                    <div>
                                        { filterShowOnlyComplete? 
                                        <img className={"small-view-button-custom"+(managementMode?'':' hidden-item')} alt="" src={inDevelopment}  onClick={handleShowOnlyCompleteChange}/>:
                                        <img className={"small-view-button-custom"+(managementMode?'':' hidden-item')} alt="" src={inDevelopmentInactive}  onClick={handleShowOnlyCompleteChange}/>}
@@ -1129,10 +1201,7 @@ export default function TasksTable(props) {
                                         { filterShowOnlyIncomplete? 
                                        <img className={"small-view-button-custom"+(managementMode?'':' hidden-item')} alt="" src={deployedToLive}  onClick={handleShowOnlyIncompleteChange}/>:
                                        <img className={"small-view-button-custom"+(managementMode?'':' hidden-item')} alt="" src={deployedToLiveInactive}  onClick={handleShowOnlyIncompleteChange}/>}
-
-                                    {/* <IconButton className={'small-view-button '+(managementMode?'':'hidden-item')} onClick={handleShowOnlyIncompleteChange}>
-                                        <BuildIcon fontSize="small" color={filterShowOnlyIncomplete ? 'primary' : 'disabled'} />
-                                    </IconButton> */}
+                                    </div>
                                 </TableCell>
                                 <TableCell align='center' className='cell-action' >
                                     <div>
@@ -1208,7 +1277,8 @@ export default function TasksTable(props) {
                 saveTask={handleUpdateTaskNameAndInfo}
                 adminMode={adminMode}
             />}
-        </>
+        </>:
+        <div className="table-loading-bar-wrapper"><CircularProgress className='table-loading-bar'/></div>
     );
 }
 

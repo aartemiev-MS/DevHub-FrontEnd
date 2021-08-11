@@ -5,6 +5,7 @@ export const SASHA_TEST = 'SASHA_TEST'
 export const UPDATE_TASKS = 'UPDATE_TASKS'
 export const SET_MOUNT_DATA = 'SET_MOUNT_DATA'
 export const ADD_TASK = 'ADD_TASK'
+export const ADD_BRANCH_DATA_SET = 'ADD_BRANCH_DATA_SET'
 export const REMOVE_TASK = 'REMOVE_TASK'
 export const UPDATE_PRIORITIES = 'UPDATE_PRIORITIES'
 export const UPDATE_TASK_GROUP_NAME = 'UPDATE_TASK_GROUP_NAME'
@@ -12,6 +13,7 @@ export const UPDATE_TASK_SUB_GROUP_NAME = 'UPDATE_TASK_SUB_GROUP_NAME'
 export const ADD_TASK_GROUP = 'ADD_TASK_GROUP'
 export const ADD_TASK_SUB_GROUP = 'ADD_TASK_SUB_GROUP'
 export const UPDATE_DRAG_HANDLER_DATA = 'UPDATE_DRAG_HANDLER_DATA'
+export const UPDATE_BRANCH_DATA_SET = 'UPDATE_BRANCH_DATA_SET'
 
 export const updateTasks = updatedTasks => ({
     type: UPDATE_TASKS,
@@ -29,6 +31,11 @@ export const addTask = (newTask, prioritiesShiftData) => ({
     prioritiesShiftData: prioritiesShiftData
 })
 
+export const addBranchDataSet = (newBranchDataSet) => ({
+    type: ADD_BRANCH_DATA_SET,
+    newBranchDataSet: newBranchDataSet
+})
+
 export const removeTask = (removingTaskId, prioritiesShiftData) => ({
     type: REMOVE_TASK,
     removingTaskId: removingTaskId,
@@ -41,7 +48,9 @@ export const setMountData = mountData => ({
     tasksData: mountData.tasksData,
     taskGroups: mountData.taskGroups,
     taskSubGroups: mountData.taskSubGroups,
-    loggedUserRole:mountData.loggedUserRole
+    loggedUserRole:mountData.loggedUserRole,
+    solutionBranches:mountData.solutionBranches,
+    branchDataSets:mountData.branchDataSets
 })
 
 export const addTaskGroup = newTaskGroupId => ({
@@ -70,4 +79,9 @@ export const updateTaskSubGroupName = (newName,taskSubGroupId) => ({
 export const updateDragHandlerData = (newData) => ({
     type: UPDATE_DRAG_HANDLER_DATA,
     newData: newData
+})
+
+export const updateBranchDataSet = (updatedDataSet) => ({
+    type: UPDATE_BRANCH_DATA_SET,
+    updatedDataSet: updatedDataSet
 })
