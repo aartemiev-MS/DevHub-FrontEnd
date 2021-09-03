@@ -6,8 +6,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 
-import { getTasksData } from '../tableData'
-
 const useStyles = makeStyles((theme) => ({
     typography: {
         padding: theme.spacing(2),

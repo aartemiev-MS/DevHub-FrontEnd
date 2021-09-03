@@ -13,10 +13,10 @@ import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import PauseCircleFilledIcon from "@material-ui/icons/PauseCircleFilled";
 import PlayCircleFilledIcon from "@material-ui/icons/PlayCircleFilled";
 
-import createNewSubGroupIcon from "../assets/icons/subgroup create.svg"
-import createNewGroupIcon from "../assets/icons/group create.svg"
-import renameSubGroupIcon from "../assets/icons/subgroup edit.svg"
-import renameGroupIcon from "../assets/icons/group edit.svg"
+import createNewSubGroupIcon from "../assets/icons/subgroup create.svg";
+import createNewGroupIcon from "../assets/icons/group create.svg";
+import renameSubGroupIcon from "../assets/icons/subgroup edit.svg";
+import renameGroupIcon from "../assets/icons/group edit.svg";
 
 const StyledMenu = withStyles({
   paper: {
@@ -69,7 +69,8 @@ export default function TableContextMenu(props) {
       props.contextMenuAnchor.taskId,
       true,
       props.contextMenuAnchor.copyTaskGroup,
-      props.contextMenuAnchor.copyTaskSubGroup
+      props.contextMenuAnchor.copyTaskSubGroup,
+      props.contextMenuAnchor.copyTaskName
     );
     handleClose();
   };
@@ -88,23 +89,35 @@ export default function TableContextMenu(props) {
   };
 
   const handleOnCreateNewGroupAction = () => {
-    props.handleOnCreateNewGroupAction(props.contextMenuAnchor.taskId)
+    props.handleOnCreateNewGroupAction(props.contextMenuAnchor.taskId);
     handleClose();
   };
 
   const handleOnCreateNewSubGroupAction = () => {
-    props.handleOnCreateNewSubGroupAction(props.contextMenuAnchor.taskId)
+    props.handleOnCreateNewSubGroupAction(props.contextMenuAnchor.taskId);
     handleClose();
   };
 
   const handleOnRenameGroupAction = () => {
-    props.handleOnRenameGroupAction(props.contextMenuAnchor.taskId)
+    props.handleOnRenameGroupAction(props.contextMenuAnchor.taskId);
     handleClose();
   };
 
   const handleOnRenameSubGroupAction = () => {
-    props.handleOnRenameSubGroupAction(props.contextMenuAnchor.taskId)
+    props.handleOnRenameSubGroupAction(props.contextMenuAnchor.taskId);
     handleClose();
+  };
+
+  const getCopyModeIcon = () => {
+    if (props.contextMenuAnchor.copyTaskName) {
+      return <Chip size="small" label="tn" clickable={false} />;
+
+    } else if (props.contextMenuAnchor.copyTaskSubGroup) {
+      return <Chip size="small" label="tsg" clickable={false} />;
+
+    } else if (props.contextMenuAnchor.copyTaskGroup) {
+      return <Chip size="small" label="tg" clickable={false} />;
+    }
   };
 
   return (
@@ -120,30 +133,32 @@ export default function TableContextMenu(props) {
       onClose={handleClose}
       autoFocus={false}
     >
-      {props.adminMode&&<StyledMenuItem onClick={onClickAddAbove}>
-        <ListItemIcon>
-          <KeyboardArrowUpIcon fontSize="medium" />
-          {props.contextMenuAnchor.copyTaskGroup && !props.contextMenuAnchor.copyTaskSubGroup && (
-            <Chip size="small" label="tg" clickable={false} />
-          )}
-          {props.contextMenuAnchor.copyTaskSubGroup && (
-            <Chip size="small" label="tsg" clickable={false} />
-          )}
-        </ListItemIcon>
-        <ListItemText primary="Add a row above" />
-      </StyledMenuItem>}
-      {props.adminMode&&<StyledMenuItem onClick={onClickAddBelow}>
-        <ListItemIcon>
-          <KeyboardArrowDownIcon fontSize="medium" />
-        </ListItemIcon>
-        <ListItemText primary="Add a row below" />
-      </StyledMenuItem>}
-      {props.adminMode&&<StyledMenuItem onClick={onClickRemove}>
-        <ListItemIcon>
-          <DeleteForeverIcon fontSize="medium" />
-        </ListItemIcon>
-        <ListItemText primary="Remove row" />
-      </StyledMenuItem>}
+      {props.adminMode && (
+        <StyledMenuItem onClick={onClickAddAbove}>
+          <ListItemIcon>
+            <KeyboardArrowUpIcon fontSize="medium" />
+            {getCopyModeIcon()}
+          </ListItemIcon>
+          <ListItemText primary="Add a row above" />
+        </StyledMenuItem>
+      )}
+      {props.adminMode && (
+        <StyledMenuItem onClick={onClickAddBelow}>
+          <ListItemIcon>
+            <KeyboardArrowDownIcon fontSize="medium" />
+            {getCopyModeIcon()}
+          </ListItemIcon>
+          <ListItemText primary="Add a row below" />
+        </StyledMenuItem>
+      )}
+      {props.adminMode && (
+        <StyledMenuItem onClick={onClickRemove}>
+          <ListItemIcon>
+            <DeleteForeverIcon fontSize="medium" />
+          </ListItemIcon>
+          <ListItemText primary="Remove row" />
+        </StyledMenuItem>
+      )}
 
       {props.contextMenuAnchor.isOnHold ? (
         <StyledMenuItem onClick={onClickOnHoldAction}>
@@ -161,21 +176,22 @@ export default function TableContextMenu(props) {
         </StyledMenuItem>
       )}
 
-
-      {!props.readOnlyMode &&
-        [<StyledMenuItem onClick={handleOnCreateNewGroupAction}>
+      {!props.readOnlyMode && [
+        <StyledMenuItem onClick={handleOnCreateNewGroupAction}>
           <ListItemIcon>
             <img src={createNewGroupIcon} alt="" />
           </ListItemIcon>
           <ListItemText primary="Сreate new group" />
         </StyledMenuItem>,
 
-        props.contextMenuAnchor.hasTaskGroup && <StyledMenuItem onClick={handleOnCreateNewSubGroupAction}>
-          <ListItemIcon>
-            <img src={createNewSubGroupIcon} alt="" />
-          </ListItemIcon>
-          <ListItemText primary="Сreate new sub group" />
-        </StyledMenuItem>,
+        props.contextMenuAnchor.hasTaskGroup && (
+          <StyledMenuItem onClick={handleOnCreateNewSubGroupAction}>
+            <ListItemIcon>
+              <img src={createNewSubGroupIcon} alt="" />
+            </ListItemIcon>
+            <ListItemText primary="Сreate new sub group" />
+          </StyledMenuItem>
+        ),
 
         <StyledMenuItem onClick={handleOnRenameGroupAction}>
           <ListItemIcon>
@@ -184,14 +200,15 @@ export default function TableContextMenu(props) {
           <ListItemText primary="Rename group" />
         </StyledMenuItem>,
 
-        props.contextMenuAnchor.hasTaskSubGroup && <StyledMenuItem onClick={handleOnRenameSubGroupAction}>
-          <ListItemIcon>
-            <img src={renameSubGroupIcon} alt="" />
-          </ListItemIcon>
-          <ListItemText primary="Rename sub group" />
-        </StyledMenuItem>
-        ]
-        }
+        props.contextMenuAnchor.hasTaskSubGroup && (
+          <StyledMenuItem onClick={handleOnRenameSubGroupAction}>
+            <ListItemIcon>
+              <img src={renameSubGroupIcon} alt="" />
+            </ListItemIcon>
+            <ListItemText primary="Rename sub group" />
+          </StyledMenuItem>
+        ),
+      ]}
     </StyledMenu>
   );
 }

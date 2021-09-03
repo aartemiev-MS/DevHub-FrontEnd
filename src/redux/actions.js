@@ -48,7 +48,7 @@ export const setMountData = mountData => ({
     tasksData: mountData.tasksData,
     taskGroups: mountData.taskGroups,
     taskSubGroups: mountData.taskSubGroups,
-    loggedUserRole:mountData.loggedUserRole,
+    loggedUser:mountData.loggedUser,
     solutionBranches:mountData.solutionBranches,
     branchDataSets:mountData.branchDataSets
 })

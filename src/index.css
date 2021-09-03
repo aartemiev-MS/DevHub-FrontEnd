@@ -12,6 +12,13 @@ code {
     monospace;
 }
 
+span,
+div,
+button {
+  /* font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400; */
+}
+
 .task-info-border {
   position: fixed;
   width: 100%;
@@ -44,14 +51,14 @@ code {
   white-space: nowrap;
   min-width: 120px;
   max-width: 120px;
-  padding: 2px 5px  !important;
+  padding: 2px 5px !important;
 }
 
-.branch-info-cell  {
+.branch-info-cell {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.branch-info-cell>span{  
+.branch-info-cell > span {
   font-size: 0.8rem;
 }
 
@@ -98,7 +105,7 @@ code {
   background-color: white;
   z-index: 1;
 }
-.cell-priority>div {
+.cell-priority > div {
   display: flex;
   justify-content: center;
 }
@@ -118,11 +125,11 @@ code {
   min-width: 35px;
   max-width: 35px;
   position: sticky;
-  left: 775px;
+  left: 1125px;
   z-index: 3;
   background-color: white;
 }
-.cell-status>div {  
+.cell-status > div {
   display: flex;
 }
 
@@ -156,7 +163,7 @@ code {
   max-width: 75px;
   padding: 0 !important;
 }
-.cell-last-action-date>div{
+.cell-last-action-date > div {
   display: flex;
 }
 .cell-action {
@@ -167,7 +174,7 @@ code {
 .cell-action > button,
 .cell-main-dev-name > span > button,
 .collaborator-button,
-.dev-popover > button  {
+.dev-popover > button {
   padding: 2px 5px !important;
   line-height: unset !important;
   text-transform: capitalize !important;
@@ -175,56 +182,95 @@ code {
   margin: 2.5px;
 }
 
-.cell-task-name,
 .cell-task-group,
 .cell-task-sub-group {
   min-width: 150px;
   max-width: 150px;
-  /* width: auto; */
   position: sticky;
   padding: 0 !important;
   background-color: white;
   z-index: 1;
   white-space: nowrap;
 }
-.cell-task-name>div>div{
-padding: 0 0 0 5px;
+
+.cell-task-name-short{
+  min-width: 500px;
+  max-width: 500px;
+  position: sticky;
+  padding: 0 !important;
+  background-color: white;
+  z-index: 1;
+  white-space: nowrap;
+}
+.cell-task-name-long{
+  min-width: 650px;
+  max-width: 650px;
+  position: sticky;
+  padding: 0 !important;
+  background-color: white;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.cell-task-name-short > div > div,
+.cell-task-name-long > div > div {
+  padding: 0 0 0 5px;
+}
+.cell-task-name-short>div>div>div>input{
+width: 480px;
+}
+.cell-task-name-long>div>div>div>input{
+width: 630px;
 }
 .cell-task-group > div,
 .cell-task-sub-group > div,
-.cell-task-name > div,
 .branch-info-cell > div {
   display: flex;
   line-height: 24px;
-  max-width: 150px;
   font-size: 0.8rem;
+  max-width: 150px;
 }
+.cell-task-name-short > div{
+  padding-left: 10px;
+  display: flex;
+  line-height: 24px;
+  font-size: 0.8rem;
+  max-width: 500px;
+}
+.cell-task-name-long > div{
+  padding-left: 10px;
+  display: flex;
+  line-height: 24px;
+  font-size: 0.8rem;
+  max-width: 650px;
+}
+
 .cell-task-group {
   left: 175px;
 }
 .cell-task-sub-group {
   left: 325px;
 }
-.cell-task-name {
+.cell-task-name-short,
+.cell-task-name-long {
   left: 475px;
 }
-.cell-task-name > div > span {
+.cell-task-name-short > div > span,
+.cell-task-name-long > div > span {
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.cell-task-name > div > div > div > input {
 }
 
 .cell-collaborators {
   min-width: 150px;
   max-width: 150px;
   position: sticky;
-  left: 625px;
+  left: 975px;
   background-color: white;
   z-index: 3;
   padding: 0 !important;
 }
-.cell-collaborators >button{
+.cell-collaborators > button {
   overflow-wrap: anywhere;
 }
 
@@ -300,8 +346,8 @@ li.Mui-selected {
   justify-content: space-between;
 }
 
-.dev-popover-line-2>span{
-padding: 3px;
+.dev-popover-line-2 > span {
+  padding: 3px;
 }
 
 .group-edge {
@@ -344,7 +390,7 @@ padding: 3px;
 .small-view-button-custom {
   background-color: white;
   border-radius: 50%;
-  margin:0 6px
+  margin: 0 6px;
 }
 
 .task-row {
@@ -382,18 +428,6 @@ padding: 3px;
   background-color: transparent;
 }
 
-.shadow-1 {
-  box-shadow: 5px 5px 0px 0px #202020, 5px 5px 15px 5px rgba(0, 0, 0, 0);
-}
-.shadow-2 {
-  box-shadow: 5px 5px 0px 0px #202020, 10px 10px 0px 0px #484848,
-    5px 5px 15px 5px rgba(0, 0, 0, 0);
-}
-.shadow-many {
-  box-shadow: 5px 5px 0px 0px #202020, 10px 10px 0px 0px #484848,
-    15px 15px 0px 0px #696969, 5px 5px 15px 5px rgba(0, 0, 0, 0);
-}
-
 .border-row > td {
   padding: 4px 0 !important;
 }
@@ -416,12 +450,12 @@ padding: 3px;
   margin: 0 10px !important;
 }
 
-.modal-task-input{
+.modal-task-input {
   width: 480px;
   max-height: 480px;
-  overflow-y:scroll;
+  overflow-y: scroll;
   border: 1px solid grey;
-  padding:15px;
+  padding: 15px;
 }
 
 .no-tasks-row {
@@ -456,8 +490,8 @@ padding: 3px;
   margin-right: 5px !important;
 }
 
-.actions-button-group > button > span, 
-.cell-date-picker > button ,
+.actions-button-group > button > span,
+.cell-date-picker > button,
 .cell-collaborators > button > span > button {
   font-size: 10px;
 }
@@ -475,42 +509,41 @@ padding: 3px;
   height: 30px;
 }
 
-.collaborator-button{
+.collaborator-button {
   min-width: unset !important;
 }
 
-.collaborator-button-empty{
+.collaborator-button-empty {
   background-color: lightgray !important;
 }
 
-.collaborator-button-empty>span>span{
+.collaborator-button-empty > span > span {
   margin: 0 0 0 0;
 }
 
-.task-group-select{
+.task-group-select {
   flex-grow: 1;
 }
 
-.table-loading-bar-wrapper{
-display: flex;
-width: 100vw;
-height: 100vh;
-align-items: center;
-justify-content: center;
+.table-loading-bar-wrapper {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
 }
 
-.table-loading-bar{
+.table-loading-bar {
   width: 300px !important;
   height: 300px !important;
 }
 
-.MuiSelect-select.MuiSelect-select{
+.MuiSelect-select.MuiSelect-select {
   padding: 5px 25px 5px 5px !important;
 }
 
-.branch-select-item{
+.branch-select-item {
   max-width: 200px;
   overflow-wrap: break-word !important;
   font-size: 0.8rem !important;
-  
 }

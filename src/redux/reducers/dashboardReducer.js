@@ -20,7 +20,7 @@ const initialState = {
     taskGroups: [],
     taskSubGroups: [],
     dragHandlerData: null,
-    loggedUserRole: null,
+    loggedUser: null,
     solutionBranches: [],
     branchDataSets: []
 };
@@ -35,7 +35,7 @@ export default function (state = initialState, action) {
                 tasksData: action.tasksData,
                 taskGroups: action.taskGroups,
                 taskSubGroups: action.taskSubGroups,
-                loggedUserRole: action.loggedUserRole,
+                loggedUser: action.loggedUser,
                 solutionBranches: action.solutionBranches,
                 branchDataSets: action.branchDataSets
             };
