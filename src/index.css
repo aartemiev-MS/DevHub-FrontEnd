@@ -39,7 +39,7 @@ button {
 
 .control-panel-wrap {
   width: 100%;
-  height: 70px;
+  height: 5vh;
 }
 
 .MuiTableCell-body {
@@ -77,11 +77,11 @@ button {
   max-width: 35px;
   position: sticky;
   background-color: white;
-  z-index: 5;
   padding: 0 !important;
   left: 0;
   white-space: nowrap;
   border-left: 1px solid black !important;
+  z-index: 1;
 }
 .cell-dragger > svg,
 .cell-dragger > div > button {
@@ -167,8 +167,8 @@ button {
   display: flex;
 }
 .cell-action {
-  min-width: 120px;
-  max-width: 120px;
+  min-width: 135px;
+  max-width: 135px;
   padding: 0 !important;
 }
 .cell-action > button,
@@ -193,7 +193,7 @@ button {
   white-space: nowrap;
 }
 
-.cell-task-name-short{
+.cell-task-name-short {
   min-width: 500px;
   max-width: 500px;
   position: sticky;
@@ -202,7 +202,7 @@ button {
   z-index: 1;
   white-space: nowrap;
 }
-.cell-task-name-long{
+.cell-task-name-long {
   min-width: 650px;
   max-width: 650px;
   position: sticky;
@@ -216,11 +216,11 @@ button {
 .cell-task-name-long > div > div {
   padding: 0 0 0 5px;
 }
-.cell-task-name-short>div>div>div>input{
-width: 480px;
+.cell-task-name-short > div > div > div > input {
+  width: 480px;
 }
-.cell-task-name-long>div>div>div>input{
-width: 630px;
+.cell-task-name-long > div > div > div > input {
+  width: 630px;
 }
 .cell-task-group > div,
 .cell-task-sub-group > div,
@@ -230,14 +230,14 @@ width: 630px;
   font-size: 0.8rem;
   max-width: 150px;
 }
-.cell-task-name-short > div{
+.cell-task-name-short > div {
   padding-left: 10px;
   display: flex;
   line-height: 24px;
   font-size: 0.8rem;
   max-width: 500px;
 }
-.cell-task-name-long > div{
+.cell-task-name-long > div {
   padding-left: 10px;
   display: flex;
   line-height: 24px;
@@ -355,13 +355,23 @@ li.Mui-selected {
 }
 
 .table-container {
-  margin: 50px;
-  width: unset !important;
+  margin: 0 2vw;
+  max-height: 95vh;
+  max-width: 96vw;
+  width: min-content !important;
   box-shadow: none !important;
+}
+::-webkit-scrollbar:vertical {
+  display: none;
 }
 .table-container > tbody {
   box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%),
     0px 4px 4px 0px rgb(0 0 0 / 34%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+}
+.black-row {
+  position: sticky;
+  top: 0px;
+  z-index: 5;
 }
 
 .big-view-buttons-wrap {

@@ -7,17 +7,16 @@ import { sashaTest } from "../backendRequests";
 export default function ControlPanel(props) {
     const history = useHistory();
 
-    const handleOnLogOutClick=e=>{
+    const handleOnLogOutClick = e => {
         history.push("/authentication/logout");
     }
 
     return (
         <div className='control-panel-wrap'>
             {props.conrolPanelMessage}
-        {/* <button onClick={()=>{sashaTest()}}>Sasha</button>
             <IconButton className='logout-button' onClick={handleOnLogOutClick}>
                 <ExitToAppIcon fontSize="large" color='primary' />
-            </IconButton> */}
+            </IconButton>
         </div>
     )
 }

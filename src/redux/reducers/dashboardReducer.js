@@ -25,8 +25,8 @@ const initialState = {
     branchDataSets: []
 };
 
-export default function (state = initialState, action) {
-    let newTasksData, newTaskGroups,newTaskSubGroups
+export default function dashboardReducer(state = initialState, action) {
+    let newTasksData, newTaskGroups, newTaskSubGroups
     switch (action.type) {
         case SET_MOUNT_DATA: {
             return {
@@ -59,7 +59,7 @@ export default function (state = initialState, action) {
             };
         case ADD_BRANCH_DATA_SET:
             debugger
-            const aaa=[...state.branchDataSets, action.newBranchDataSet]
+            const aaa = [...state.branchDataSets, action.newBranchDataSet]
             return {
                 ...state,
                 branchDataSets: [...state.branchDataSets, action.newBranchDataSet]
@@ -77,29 +77,29 @@ export default function (state = initialState, action) {
                 tasksData: newTasksData
             };
         case ADD_TASK_GROUP:
-             newTaskGroups=state.taskGroups
-            newTaskGroups.push({id:action.newTaskGroupId,name:""})
+            newTaskGroups = state.taskGroups
+            newTaskGroups.push({ id: action.newTaskGroupId, name: "" })
             return {
                 ...state,
                 taskGroups: newTaskGroups
             };
         case ADD_TASK_SUB_GROUP:
-             newTaskSubGroups=state.taskSubGroups
-            newTaskSubGroups.push({id:action.newTaskSubGroupId,name:"",taskGroupId:action.taskGroupId})
+            newTaskSubGroups = state.taskSubGroups
+            newTaskSubGroups.push({ id: action.newTaskSubGroupId, name: "", taskGroupId: action.taskGroupId })
             return {
                 ...state,
                 taskSubGroups: newTaskSubGroups
             };
         case UPDATE_TASK_GROUP_NAME:
-             newTaskGroups=state.taskGroups
-            newTaskGroups.find(group=>group.id===action.taskGroupId).name=action.newName
+            newTaskGroups = state.taskGroups
+            newTaskGroups.find(group => group.id === action.taskGroupId).name = action.newName
             return {
                 ...state,
                 taskGroups: newTaskGroups
             };
         case UPDATE_TASK_SUB_GROUP_NAME:
-                 newTaskSubGroups=state.taskSubGroups
-            newTaskSubGroups.find(group=>group.id===action.taskSubGroupId).name=action.newName
+            newTaskSubGroups = state.taskSubGroups
+            newTaskSubGroups.find(group => group.id === action.taskSubGroupId).name = action.newName
             return {
                 ...state,
                 taskSubGroups: newTaskSubGroups
@@ -110,7 +110,7 @@ export default function (state = initialState, action) {
                 dragHandlerData: action.newData
             };
         case UPDATE_BRANCH_DATA_SET:
-            const updatedBranchDataSets = state.branchDataSets.map(branchesSet=>branchesSet.id===action.updatedDataSet.id?action.updatedDataSet:branchesSet)
+            const updatedBranchDataSets = state.branchDataSets.map(branchesSet => branchesSet.id === action.updatedDataSet.id ? action.updatedDataSet : branchesSet)
             return {
                 ...state,
                 branchDataSets: updatedBranchDataSets
