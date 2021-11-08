@@ -6,6 +6,8 @@ import testFailed from "./assets/icons/test failed.svg";
 import bugFixing from "./assets/icons/bug fixing.svg";
 import readyToDeploy from "./assets/icons/ready to deploy.svg";
 import deployedToDemo from "./assets/icons/demo.svg";
+import notApproved from "./assets/icons/not approved.svg";
+import approved from "./assets/icons/approved.svg";
 import deployedToLive from "./assets/icons/live.svg";
 
 export const statuses = [
@@ -66,13 +68,13 @@ export const statuses = [
   {
     statusName: "Failed Delivery Review",
     id: 8,
-    icon: notStarted,
+    icon: notApproved,
     actions: [{ actionName: "Start (code)", nextStatus: 1 }],
   },
   {
     statusName: "Approved for Live",
     id: 9,
-    icon: notStarted,
+    icon: approved,
     actions: [{ actionName: "Deploy to Live", nextStatus: 10 }],
   },
   { statusName: "Deployed To Live", id: 10, icon: deployedToLive, actions: [] },

@@ -1,7 +1,7 @@
 import authService from "./components/api-authorization/AuthorizeService";
 
-//const backendURL = "https://api.magnificentsystems.app"
-const backendURL = "https://localhost:5001";
+const backendURL = "https://api.magnificentsystems.app"
+//const backendURL = "https://localhost:5001";
 
 export async function getMountData() {
     const loggedUser = await authService.getUser();
